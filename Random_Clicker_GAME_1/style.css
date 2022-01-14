@@ -1,0 +1,80 @@
+
+body {
+    margin: 0;
+    padding: 0;    
+    height: 100vh;
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: #1c1c1c;
+    color: white;
+}
+
+#clicker {
+    width: 150px;
+    height: 150px;
+    background-color: steelblue;
+    border: 2px black solid;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+#counter {
+    text-align: center;
+    padding: 10px;
+    font-size: 50px;
+}
+
+#msgWrapper {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: flex-start;
+}
+
+.msg {
+    padding: 10px;
+    margin: 2px;
+    background-color: steelblue;
+    color: white;
+    transition: all .3s ease-in-out;
+}
+
+.wrapper {
+    display: flex;
+    height: 100%;
+    justify-content: space-between;
+    flex-direction: row;
+}
+
+.wrapperLeft {
+    width: 35%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.wrapperRight {
+    width: 65%;  
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.shop {
+    display: flex;
+}
+
+.shopItem {
+    background-color: lightblue;
+    color: black;
+    padding: 10px;
+    margin: 5px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
