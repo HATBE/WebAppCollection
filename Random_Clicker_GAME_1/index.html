@@ -5,34 +5,29 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
+
     <title>Random Clicker</title>
 </head>
 <body>
-    <div id="msgWrapper"></div>
     <div class="wrapper">
-        <div class="wrapperLeft">
-            <div>
-                <div id="counter"></div>
-                <div id="clicker"></div>
+        <div class="wrapper-left">
+            <div class="pointsCounter"><span id="pointsCounter">0</span> Points</div>
+            <div class="button-wrapper">
+                <button id="clickerButton" class="clicker-button">CLICK ME</button>
             </div>
         </div>
-        <div class="wrapperRight">
-            <div class="shop">
-                <div id="autoclickerItem" class="shopItem">
-                    <span>Price: <b><span id="autoclickerItemPrice"></span></b></span>
-                    <span>Count: <b><span id="autoclickerItemCount"></span></b></span>
-                    <span>Autoclicker</span>
-                </div>
-                <div id="multiplayerItem" class="shopItem">
-                    <span>Price: <b><span id="multiplayerItemPrice"></span></b></span>
-                    <span>Count: <b><span id="multiplayerItemCount"></span></b></span>
-                    <span>Multiplayer</span>
-                </div>
+        <div class="wrapper-right">
+            <div class="title">
+                Random Clicker <small>by HATBE</small>
+            </div>
+            <button class="saveBtn">Save</button>
+            <div class="shop-wrapper">
+                <div id="shop"></div>
             </div>
         </div>
     </div>
+    <div id="msgWrapper"></div>
 
-    </div>
     <script src="script.js"></script>
 </body>
 </html>
