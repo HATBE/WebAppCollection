@@ -50,12 +50,15 @@ function showPopup() {
         const detailsEl = document.createElement('div');
         detailsEl.classList.add('cookie-details-sm');
 
-        const nameEl = document.createElement('div');
+        const nameEl = document.createElement('label');
+        nameEl.style.display = "block";
+        nameEl.setAttribute('for', `checkbox--${idx}`);
         nameEl.classList.add('cookie-name');
         nameEl.textContent = name;
 
         const checkboxEl = document.createElement('input');
-        checkboxEl.setAttribute('type', 'checkbox')
+        checkboxEl.setAttribute('type', 'checkbox');
+        checkboxEl.id = `checkbox--${idx}`;
         checkboxEl.classList.add('checkbox');
         checkboxEl.checked = true;
 

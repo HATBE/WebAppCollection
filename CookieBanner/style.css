@@ -9,7 +9,6 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
-    overflow: hidden;
 }
 .popup {
     top: 50%;
@@ -21,6 +20,23 @@ body {
     border-radius: 5px;
     box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
 }
+@media only screen and (max-width: 800px) {
+    body {
+        display: block;
+    }
+    .popup {
+        top: 0;
+        left: 0;
+        transform: none;
+        position: block;
+        height: calc(100% - 19px);
+        position: relative;
+    }
+    .details {
+        padding: 20px;
+    }
+}
+
 .hidden {
     display: none;
 }
@@ -82,7 +98,7 @@ h1 {
     flex-wrap: wrap;
 }
 .footer {
-    position: absolute;
+    position: fixed;
     bottom: 0;
     background-color: aliceblue;
     width: 100%;
