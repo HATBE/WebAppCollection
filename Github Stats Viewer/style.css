@@ -1,0 +1,13 @@
+.profile-img {
+    height: 100%;
+    width: 100%;
+    max-width: 200px;
+    max-height: 200px;
+}
+.overflow-hidden {
+    overflow: hidden;
+}
+.obj-fit-cover {
+    object-fit: cover;
+}
+body {overflow: hidden;}

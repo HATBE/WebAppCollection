@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Stats Viewer</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-primary text-white">
+    <div class="d-flex justify-content-center row">
+        <div class="col-12 col-md-9 col-xl-7 mt-5">
+            <div class="card bg-dark shadow-lg">
+                <div class="card-header">
+                    <h1 class="fw-bold">Github stats viewer</h1>
+                </div>
+                <div class="card-body">
+                    <form id="searchBarForm">
+                        <input id="searchBar" type="text" class="shadow-lg form-control w-100 bg-light text-dark" placeholder="Please search a github username...">
+                    </form>
+                </div>
+            </div>
+            <div class="card mt-3 bg-dark">
+                <div class="card-body">
+                    <div id="error" class="d-none h3 text-center w-100">
+                        <b class="text-danger">Error!</b>
+                        <span id="errorMsg">none</span>
+                    </div>
+                    <div id="user" class="d-none">
+                       <div class="row d-flex justify-content-center">
+                            <div class="col-2 p-0">
+                                <img id="avatar" draggable="false" class="user-select-none border border-5 border-secondary shadow-lg rounded-circle profile-img obj-fit-cover" src="" alt="">
+                            </div>
+                            <div class="col-10 col-md-6 mt-3">
+                                <div class="ms-4">
+                                    <h3 class="fw-bold" id="username"></h3>
+                                    <div class="pb-2" id="bio"></div>
+                                    <div class="row">
+                                        <div class="col-4"><span id="follower"></span><span class="fw-bold"> Follower</span></div>
+                                        <div class="col-4"><span id="following"></span><span class="fw-bold"> Following</span></div>
+                                        <div class="col-4"><span id="repos"></span><span class="fw-bold"> Repos</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                       </div>
+                    </div>
+                    <div id="main" class="">
+                        Please search a Github user
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js" integrity="sha512-aVKKRRi/Q/YV+4mjoKBsE4x3H+BkegoM/em46NNlCqNTmUYADjBbeNefNxYV7giUp0VxICtqdrbqU7iVaeZNXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3" crossorigin="anonymous"></script>
+    <script src="index.js"></script>
+</body>
+</html>
