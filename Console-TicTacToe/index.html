@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TicTacToe</title>
+</head>
+<body>
+    Open the dev console (with F12) to play TicTacToe.
+    <script>
+        const board = [
+            [' ', ' ', ' '],
+            [' ', ' ', ' '],
+            [' ', ' ', ' ']
+        ];
+
+        let gameOver = false;
+
+        const players = ['X', 'O'];
+        let currentPlayer = players[0];
+
+        function printBoard(board) {
+            console.log(`You are player "%c${currentPlayer}%c"!`, 'color: red;', 'color: white;');
+
+            let rowCount = 0;
+            let boardChars = '';
+            boardChars += '    1   2   3  \n'; // first one
+            boardChars += '  ╔═══╦═══╦═══╗\n'; // first one
+            board.forEach(row => {
+                rowCount++;
+                let rowChars = `${rowCount} ║`;
+                row.forEach(column => {
+                    rowChars += ` ${column} ║`
+                });
+                boardChars += `${rowChars}\n`;
+                boardChars += rowCount >= 3 ? '  ╚═══╩═══╩═══╝\n' : '  ╠═══╬═══╬═══╣\n'; // change if its the last one
+            });
+            console.log(boardChars); // print board
+        }
+
+        function isWin(player) {
+            if(
+                board[0][0] == player && board[0][1] == player && board[0][2] == player || // first row
+                board[1][0] == player && board[1][1] == player && board[1][2] == player || // second row
+                board[2][0] == player && board[2][1] == player && board[2][2] == player || // third row
+                board[0][0] == player && board[1][0] == player && board[2][0] == player || // first column
+                board[1][0] == player && board[1][1] == player && board[1][2] == player || // second column
+                board[0][2] == player && board[1][2] == player && board[2][2] == player || // third column
+                board[0][0] == player && board[1][1] == player && board[2][2] == player || // left to right tilt
+                board[0][2] == player && board[1][1] == player && board[2][0] == player    // right to left tilt
+            ) {
+                gameOver = true;
+                return true;
+            }
+            return false;
+        }
+
+        function isDraw(player) {
+            if(isWin(player)) {
+                return false;
+            }
+
+            let foundEmpty = 0;
+            board.forEach(row => {
+                if(row.includes(' ')) {
+                    foundEmpty++;
+                }
+            });
+
+            console.log(foundEmpty)
+
+            if(foundEmpty < 1) {
+                gameOver = true;
+                return true;
+            }
+
+            return false;
+        }
+
+        function switchPlayer() {
+            players.reverse();
+            currentPlayer = players[0];
+        }
+
+        function makeMove(x, y) {
+            if(gameOver) {
+                console.log("The game has ended. Press F5 on your keyboard to restart!");
+                return;
+            }
+
+            if(x >= 4 || x <= 0 || x >= 4 || x <= 0) {
+                console.log(`Error: X and Y must be between 1 and 3!\nPlease try again.\nYou are player "%c${currentPlayer}%c"!`, 'color: red;', 'color: white;');
+                return;
+            }
+
+            x = x-1;
+            y = y-1;
+
+            console.log('%c═════════════════════════════════════════', 'color: black;');
+
+            if(board[x][y] != ' ') {
+                console.log(`Error: (${x+1}|${y+1}) is already taken by player "%c${board[x][y]}%c"!\nPlease try again.\nYou are player "%c${currentPlayer}%c"!`, 'color: red;', 'color: white;', 'color: red;', 'color: white;');
+                return;
+            }
+            const playedPlayer = currentPlayer
+
+            board[x][y] = currentPlayer;
+
+            switchPlayer();
+            printBoard(board); // to show the user in board
+
+            if(isWin(playedPlayer)) {
+                console.log(`╔═══════════════╗\n║ %cPlayer %c${playedPlayer}%c Won!%c ║\n╚═══════════════╝\nPress F5 on your keyboard to restart!`, 'color: green;', 'color: red;','color: green;', 'color: white;');
+                return;
+            } else if(isDraw(playedPlayer)) {
+                console.log(`╔═══════════════════════════╗\n║ %cThe game ended in a Draw!%c ║\n╚═══════════════════════════╝\nPress F5 on your keyboard to restart!`, 'color: yellow;', 'color: white;');
+                return;
+            }
+        }
+
+        function initGame() {
+            console.log('╔═══════════════════════════════╗\n║ Welcome to %cTicTacToe%c by Geny! ║\n╚═══════════════════════════════╝\n=> Use %cmakeMove(x, y)%c to set your mark.\n', 'color: yellow;', 'color: white;','color: green;', 'color: white;');
+            printBoard(board);
+        }
+
+        initGame();
+    </script>
+</body>
+</html>
