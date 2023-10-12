@@ -2,6 +2,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    user-select: none;
 }
 body {
     background-color: #1c1c1c;
@@ -84,7 +85,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    color: black;
+    color: white;
     font-weight: bold;
     cursor: pointer;
     user-select: none;

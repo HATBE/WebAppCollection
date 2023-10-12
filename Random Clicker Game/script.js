@@ -17,7 +17,7 @@ let shopItems = [
     {
         name: 'Autoclicker',
         cost: 130,
-        maxCount: 10,
+        maxCount: 30,
         amount: 0,
         onClick: function() {
             
@@ -25,7 +25,7 @@ let shopItems = [
     }
 ]
 
-let points;
+let points = 0;
 
 function init() {
     points = Number(getValueStandard('points', 0));
@@ -71,7 +71,7 @@ function clicked(e) {
 function spawnFloatingNumber(x, y, amt) {
     let floatingNumber = document.createElement('span');
     floatingNumber.classList.add('floatingNumber');
-    floatingNumber.textContent = `+${numberWithCommas(amt)}`;
+    floatingNumber.textContent = `+${formatNumber(amt)}`;
 
     floatingNumber.style.top = `${y}px`;
     floatingNumber.style.left = `${x}px`;
@@ -102,7 +102,7 @@ function getValueStandard(value, standard) {
     return standard;
 }
 
-function numberWithCommas(num) {
+function formatNumber(num) {
     if(num < 1_000_000) {
         return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "'");
     }
@@ -134,15 +134,15 @@ function buyItem(cost) {
 }
 
 function updateUi() {
-    counterEl.textContent = numberWithCommas(points);
+    counterEl.textContent = formatNumber(points);
     shopItems.forEach((item) => {
         cost = item.amount == 0 ? item.cost : Math.round(item.cost * item.amount * 22);
 
         let costEl = document.getElementById(`shopItem-${item.name}-cost`);
         let amtEl = document.getElementById(`shopItem-${item.name}-amt`);
 
-        costEl.textContent = `Cost: ${cost}`;
-        amtEl.textContent = `Amount: ${item.amount}`;
+        costEl.textContent = `Cost: ${formatNumber(cost)}`;
+        amtEl.textContent = `Amount: ${formatNumber(item.amount)}`;
     });
 }
 
@@ -161,19 +161,19 @@ function createShop() {
 
         let costEl = document.createElement('div');
         costEl.id = `shopItem-${item.name}-cost`;
-        costEl.textContent = `Cost: ${cost}`;
+        costEl.textContent = `Cost: ${formatNumber(cost)}`;
         shopItem.appendChild(costEl);
 
         let amtEl = document.createElement('div');
         amtEl.id = `shopItem-${item.name}-amt`;
-        amtEl.textContent = `Amount: ${item.amount}`;
+        amtEl.textContent = `Amount: ${formatNumber(item.amount)}`;
         shopItem.appendChild(amtEl);
                                         
         shopEl.appendChild(shopItem);
 
         shopItem.addEventListener('click', () => {
             if(item.amount + 1 > item.maxCount) {
-                createNotification(`Maximum amount purchased ${item.maxCount}`);
+                createNotification(`Maximum amount purchased: ${item.maxCount}`);
             } else {
                 let cost = item.amount == 0 ? item.cost : Math.round(item.cost * item.amount * 22);
                 if(buyItem(cost)) {
@@ -201,9 +201,9 @@ init();
 window.setInterval(() => {
     autoclicker();
     save();
-    document.title = `${numberWithCommas(points)} Points - Random Clicker`;
+    document.title = `${formatNumber(points)} Points - Random Clicker`;
     updateUi();
-}, 10000);
+}, 10_000);
 
 clickerButtonEL.addEventListener('click', (e) => {
     clicked(e);
