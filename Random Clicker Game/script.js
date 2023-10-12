@@ -83,11 +83,11 @@ function spawnFloatingNumber(x, y, amt) {
 
 function save() {
     if(typeof points == 'number' && points > 0) {
-        setCookie('points', points, 365);
+        localStorage.setItem('points', points);
     }
     shopItems.forEach((item) => {
         if(typeof item.amount == 'number' && item.amount > 0) {
-            setCookie(`shopItem-${item.name}`, item.amount, 365);
+            localStorage.setItem(`shopItem-${item.name}`, item.amount);
         }
     });
 
@@ -95,34 +95,11 @@ function save() {
 }
 
 function getValueStandard(value, standard) {
-    value = getCookie(value);
+    value = localStorage.getItem(value);
     if(value !== '') {
         return value;
     }
     return standard;
-}
-
-function setCookie(cname, cvalue, exdays) {
-    const d = new Date();
-    d.setTime(d.getTime() + (exdays*24*60*60*1000));
-    let expires = "expires="+ d.toUTCString();
-    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/;" + "SameSite=None; Secure";
-}
-
-function getCookie(cname) {
-    let name = cname + "=";
-    let decodedCookie = decodeURIComponent(document.cookie);
-    let ca = decodedCookie.split(';');
-    for(let i = 0; i <ca.length; i++) {
-      let c = ca[i];
-      while (c.charAt(0) == ' ') {
-        c = c.substring(1);
-      }
-      if (c.indexOf(name) == 0) {
-        return c.substring(name.length, c.length);
-      }
-    }
-    return '';
 }
 
 function numberWithCommas(num) {
