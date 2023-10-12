@@ -45,6 +45,9 @@ class Entity {
 class GameState {
     constructor() {if (this.constructor == GameState) {throw new Error("Abstract classes can't be instantiated.");}}
 
+    start() {throw new Error("Method 'start()' must be implemented.");}
+    stop() {throw new Error("Method 'stop()' must be implemented.");}
+
     tick() {throw new Error("Method 'tick()' must be implemented.");}
     render() {throw new Error("Method 'render()' must be implemented.");}
 }
@@ -54,15 +57,13 @@ class GameState {
 //============================
 
 class Game {
-    #player;
-
     #oldTimeStamp = 0;
     #targetFPS = 60;
     #frameDelay = 1000 / this.#targetFPS;
     #currentFPS;
 
     constructor() {
-        this.#player = new Player(20);
+        
     }
 
     #loop(timeStamp) {
@@ -94,11 +95,11 @@ class Game {
     }
 
     #tick() {
-        this.#player.tick();
+        
     }
 
     #render() {
-        this.#player.render();
+        
     }
 
     start() {
@@ -110,11 +111,46 @@ class Game {
 // GAME STATES
 
 class MenuState extends GameState {
+    start() {
 
+    }
+
+    stop() {
+
+    }
+
+    tick() {
+
+    }
+
+    render() {
+
+    }
 }
 
 class InGameState extends GameState {
+    #player;
 
+    constructor() {
+        super();
+        this.#player = new Player(20);
+    }
+
+    start() {
+
+    }
+
+    stop() {
+
+    }
+
+    tick() {
+        this.#player.tick();
+    }
+
+    render() {
+        this.#player.render();
+    }
 }
 
 // ============================
