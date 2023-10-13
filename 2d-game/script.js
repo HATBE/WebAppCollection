@@ -1,5 +1,5 @@
-canvas = document.getElementById('canvas');
-ctx = canvas.getContext("2d");
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext("2d");
 
 // ============================
 // ABSTRACT CLASSES
@@ -7,14 +7,20 @@ ctx = canvas.getContext("2d");
 
 // abstract
 class Entity {
-    #posX = 0;
-    #posY = 0;
+    #x;
+    #y;
     #maxHealth;
     #health;
+    #width;
+    #height;
 
-    constructor(maxHealth = 20) {
+    constructor(x = 0,y = 0, width = 10, height = 10, maxHealth = 20) {
         if (this.constructor == Entity) {throw new Error("Abstract classes can't be instantiated.");}
         
+        this.#x = x;
+        this.#y = y;
+        this.#height = height;
+        this.#width = width;
         this.#maxHealth = maxHealth;
         this.#health = maxHealth;
     }
@@ -22,10 +28,12 @@ class Entity {
     tick() {throw new Error("Method 'tick()' must be implemented.");}
     render() {throw new Error("Method 'render()' must be implemented.");}
 
-    getX() {return this.#posX;}
-    setX(x) {this.#posX = x;}
-    getY() {return this.#posY;}
-    setY(y) {this.#posY = y;}
+    getX() {return this.#x;}
+    setX(x) {this.#x = x;}
+    getY() {return this.#y;}
+    setY(y) {this.#y = y;}
+    getWidth() {return this.#width;}
+    getHeight() {return this.#height;}
     getHealth() {return this.#health;}
     getMaxHealth() {return this.#maxHealth;}
 
@@ -52,7 +60,7 @@ class Entity {
     }
 
     die() {
-        alert('die');
+        alert('player has died');
     }
 }
 
@@ -123,16 +131,19 @@ class Game {
     }
 
     #tick() {
-        
+       this.#GameStateManager.getCurrentGameState().tick(); 
     }
 
     #render() {
-        
+        ctx.clearRect(0, 0, this.#gameWidth, this.#gameHeight);
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, this.#gameWidth, this.#gameHeight);
+        this.#GameStateManager.getCurrentGameState().render(); 
     }
 
     start() {
         this.#setupCanvas();
-        this.#GameStateManager.switchGameState(this.#GameStateManager.gameStates.menu)
+        this.#GameStateManager.switchGameState(this.#GameStateManager.gameStates.inGame); // TODO: change to menu 
         window.requestAnimationFrame((timeStamp) => {this.#loop(timeStamp)});
     }
 }
@@ -153,6 +164,10 @@ class GameStateManager {
         this.#currentGameState = new gameState;
         this.#currentGameState.start();
     }
+
+    getCurrentGameState() {
+        return this.#currentGameState;
+    }
 }
 
 // ============================
@@ -160,64 +175,60 @@ class GameStateManager {
 
 class MenuState extends GameState {
     start() {
-        console.log('start menu');
+
     }
 
     stop() {
-        console.log('stop menu');
+
     }
 
     tick() {
-        console.log('tick menu');
+
     }
 
     render() {
-        console.log('render menu');
+
     }
 }
 
 class InGameState extends GameState {
     #player;
 
-    constructor() {
-        super();
-        this.#player = new Player(20);
-    }
-
     start() {
-        console.log('start ingame');
+        this.#player = new Player(0, 0, 10, 10, 20);
     }
 
     stop() {
-        console.log('stop ingame');
+
     }
 
     tick() {
-        console.log('tick ingame');
+        this.#player.setX(this.#player.getX() + 1)
+        this.#player.setY(this.#player.getY() + 1)
         this.#player.tick();
     }
 
     render() {
-        console.log('render ingame');
+
         this.#player.render();
     }
 }
 
 class GameOverState extends GameState {
     start() {
-        console.log('start game over');
+
     }
 
     stop() {
-        console.log('stop game over');
+
     }
 
     tick() {
-        console.log('tick game over');
+
     }
 
     render() {
-        console.log('render game over');
+
     }
 }
 
@@ -230,11 +241,12 @@ class Player extends Entity {
     }
     
     tick() {
-        console.log(this.getHealth());
+
     }
 
     render() {
-        
+        ctx.fillStyle = 'red';
+        ctx.fillRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
     }
 }
 
@@ -242,5 +254,6 @@ class Player extends Entity {
 // GAME
 //============================
 
+// Initialize Game
 const game = new Game(1280, 720);
 game.start();
