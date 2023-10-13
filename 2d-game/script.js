@@ -1,3 +1,6 @@
+canvas = document.getElementById('canvas');
+ctx = canvas.getContext("2d");
+
 // ============================
 // ABSTRACT CLASSES
 //============================
@@ -74,25 +77,21 @@ class Game {
     #frameDelay = 1000 / this.#targetFPS;
     #currentFPS;
 
-    #canvas;
-    #ctx;
-
     #gameWidth;
     #gameHeight;
 
-    #currentGameState;
+    #GameStateManager;
 
     constructor(width, height) {
+        this.#GameStateManager = new GameStateManager();
+
         this.#gameWidth = width;
         this.#gameHeight = height;
     }
 
     #setupCanvas() {
-        this.#canvas = document.getElementById('canvas');
-        this.#ctx = this.#canvas.getContext("2d");
-
-        this.#canvas.height = this.#gameHeight;
-        this.#canvas.width = this.#gameWidth;
+        canvas.height = this.#gameHeight;
+        canvas.width = this.#gameWidth;
     }
 
     #loop(timeStamp) {
@@ -133,7 +132,26 @@ class Game {
 
     start() {
         this.#setupCanvas();
+        this.#GameStateManager.switchGameState(this.#GameStateManager.gameStates.menu)
         window.requestAnimationFrame((timeStamp) => {this.#loop(timeStamp)});
+    }
+}
+
+class GameStateManager {
+    #currentGameState = null;
+
+    gameStates = {
+        menu: MenuState,
+        inGame: InGameState,
+        gameOver: GameOverState
+    }
+
+    switchGameState(gameState) {
+        if(this.#currentGameState) {
+            this.#currentGameState.stop();
+        }
+        this.#currentGameState = new gameState;
+        this.#currentGameState.start();
     }
 }
 
@@ -142,19 +160,19 @@ class Game {
 
 class MenuState extends GameState {
     start() {
-
+        console.log('start menu');
     }
 
     stop() {
-
+        console.log('stop menu');
     }
 
     tick() {
-
+        console.log('tick menu');
     }
 
     render() {
-
+        console.log('render menu');
     }
 }
 
@@ -167,19 +185,39 @@ class InGameState extends GameState {
     }
 
     start() {
-
+        console.log('start ingame');
     }
 
     stop() {
-
+        console.log('stop ingame');
     }
 
     tick() {
+        console.log('tick ingame');
         this.#player.tick();
     }
 
     render() {
+        console.log('render ingame');
         this.#player.render();
+    }
+}
+
+class GameOverState extends GameState {
+    start() {
+        console.log('start game over');
+    }
+
+    stop() {
+        console.log('stop game over');
+    }
+
+    tick() {
+        console.log('tick game over');
+    }
+
+    render() {
+        console.log('render game over');
     }
 }
 
