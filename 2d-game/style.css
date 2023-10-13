@@ -1,0 +1,16 @@
+* {
+    box-sizing: border-box;
+    font-size: arial;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+}
+body {
+    background-color: black;
+}
+canvas {
+    display: block;
+    border: 2px white solid;
+    margin: 0;
+    background-color: white;
+}

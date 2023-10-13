@@ -4,8 +4,8 @@
 
 // abstract
 class Entity {
-    #posX;
-    #posY;
+    #posX = 0;
+    #posY = 0;
     #maxHealth;
     #health;
 
@@ -27,17 +27,29 @@ class Entity {
     getMaxHealth() {return this.#maxHealth;}
 
     setHealth(health) {
-         // if health input <= 0 -> health = 0
+        // if health input <= 0 -> die
         if(health <= 0) {
-            this.#health = 0;
+            this.die();
             return;
         }
-        // if health input > maxHealth -> health = maxHealth
-        if(health > this.#maxHealth) {
+        // if health input > maxHealth -> health == maxHealth
+        if(health >= this.#maxHealth) {
             this.#health = this.#maxHealth;
             return;
         }
         this.#health = health;
+    }
+
+    addHealth(health) {
+        this.setHealth(this.getHealth() + health);
+    }
+
+    removeHealth(health) {
+        this.setHealth(this.getHealth() - health);
+    }
+
+    die() {
+        alert('die');
     }
 }
 
@@ -62,8 +74,25 @@ class Game {
     #frameDelay = 1000 / this.#targetFPS;
     #currentFPS;
 
-    constructor() {
-        
+    #canvas;
+    #ctx;
+
+    #gameWidth;
+    #gameHeight;
+
+    #currentGameState;
+
+    constructor(width, height) {
+        this.#gameWidth = width;
+        this.#gameHeight = height;
+    }
+
+    #setupCanvas() {
+        this.#canvas = document.getElementById('canvas');
+        this.#ctx = this.#canvas.getContext("2d");
+
+        this.#canvas.height = this.#gameHeight;
+        this.#canvas.width = this.#gameWidth;
     }
 
     #loop(timeStamp) {
@@ -103,6 +132,7 @@ class Game {
     }
 
     start() {
+        this.#setupCanvas();
         window.requestAnimationFrame((timeStamp) => {this.#loop(timeStamp)});
     }
 }
@@ -162,7 +192,6 @@ class Player extends Entity {
     }
     
     tick() {
-        this.setHealth(20);
         console.log(this.getHealth());
     }
 
@@ -175,5 +204,5 @@ class Player extends Entity {
 // GAME
 //============================
 
-const game = new Game();
+const game = new Game(1280, 720);
 game.start();
