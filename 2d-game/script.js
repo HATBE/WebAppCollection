@@ -59,6 +59,7 @@ class Entity {
     }
 
     removeHealth(health) {
+
         this.setHealth(this.getHealth() - health);
     }
 
@@ -141,7 +142,7 @@ class Game {
 
     #render() {
         ctx.clearRect(0, 0, this.#gameWidth, this.#gameHeight);
-        ctx.fillStyle = 'white';
+        ctx.fillStyle = 'black';
         ctx.fillRect(0, 0, this.#gameWidth, this.#gameHeight);
         this.#GameStateManager.getCurrentGameState().render(); 
     }
@@ -208,7 +209,9 @@ class MenuState extends GameState {
     }
 
     render() {
-
+        ctx.fillStyle = 'red';
+        ctx.font = "50px ARIAL";
+        ctx.fillText(`Menu`, 0, 50);
     }
 
     keyboardListeners(keysPressed) {
@@ -220,7 +223,11 @@ class InGameState extends GameState {
     #player;
 
     start() {
-        this.#player = new Player(0, 0, 10, 10, 20, 5);
+        const playerWidth = 10;
+        const playerHeight = 10;
+        const xCenter = (canvas.width / 2) - (playerWidth / 2);
+        const yCenter = (canvas.height / 2) - (playerHeight / 2);
+        this.#player = new Player(xCenter, yCenter, playerWidth, playerHeight, 20, 5);
     }
 
     stop() {
@@ -235,17 +242,61 @@ class InGameState extends GameState {
         this.#player.render();
     }
 
+    #isIntersectingTop() {
+        if(this.#player.getY() - this.#player.getStepSize() <= 0) {
+            return true;
+        }
+        return false;
+    }
+
+    #isIntersectingBottom() {
+        if(this.#player.getY() + this.#player.getStepSize() >= canvas.height - this.#player.getHeight()) {
+            return true;
+        }
+        return false;
+    }
+
+    #isIntersectingLeft() {
+        if(this.#player.getX() - this.#player.getStepSize() <= 0) {
+            return true;
+        }
+        return false;
+    }
+
+    #isIntersectingRight() {
+        if(this.#player.getX() + this.#player.getStepSize() >= canvas.width - this.#player.getWidth()) {
+            return true;
+        }
+        return false;
+    }
+
     keyboardListeners(keysPressed) {
         if(keysPressed['w']) {
+            if(this.#isIntersectingTop()) {
+                this.#player.setY(0);
+                return;
+            }
             this.#player.setY(this.#player.getY() - this.#player.getStepSize())
         }
         if(keysPressed['s']) {
+            if(this.#isIntersectingBottom()) {
+                this.#player.setY(canvas.height - this.#player.getHeight());
+                return;
+            }
             this.#player.setY(this.#player.getY() + this.#player.getStepSize())
         }
         if(keysPressed['a']) {
+            if(this.#isIntersectingLeft()) {
+                this.#player.setX(0);
+                return;
+            }
             this.#player.setX(this.#player.getX() - this.#player.getStepSize())
         }
         if(keysPressed['d']) {
+            if(this.#isIntersectingRight()) {
+                this.#player.setX(canvas.width - this.#player.getWidth());
+                return;
+            }
             this.#player.setX(this.#player.getX() + this.#player.getStepSize())
         }
     }
@@ -265,7 +316,9 @@ class GameOverState extends GameState {
     }
 
     render() {
-
+        ctx.fillStyle = 'red';
+        ctx.font = "50px ARIAL";
+        ctx.fillText(`Game Over`, 0, 50);
     }
 
     keyboardListeners(keysPressed) {
@@ -284,6 +337,11 @@ class Player extends Entity {
     render() {
         ctx.fillStyle = 'red';
         ctx.fillRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
+
+
+
+        ctx.fillStyle = 'blue';
+        ctx.fillRect(this.getX(), this.getY(), 2, 2);
     }
 }
 
