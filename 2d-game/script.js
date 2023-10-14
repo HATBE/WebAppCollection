@@ -16,7 +16,7 @@ class Entity {
     #stepSize;
 
     constructor(x = 0,y = 0, width = 10, height = 10, maxHealth = 20, stepSize = 2) {
-        if (this.constructor == Entity) {throw new Error("Abstract classes can't be instantiated.");}
+        if (this.constructor === Entity) {throw new Error("Abstract classes can't be instantiated.");}
         
         this.#x = x;
         this.#y = y;
@@ -70,7 +70,13 @@ class Entity {
 
 // abstract
 class GameState {
-    constructor() {if (this.constructor == GameState) {throw new Error("Abstract classes can't be instantiated.");}}
+    #GameStateManager;
+
+    constructor(GameStateManager) {
+        if (this.constructor === GameState) {throw new Error("Abstract classes can't be instantiated.")};
+
+        this.#GameStateManager = GameStateManager;
+    };
 
     start() {throw new Error("Method 'start()' must be implemented.");}
     stop() {throw new Error("Method 'stop()' must be implemented.");}
@@ -79,6 +85,10 @@ class GameState {
     render() {throw new Error("Method 'render()' must be implemented.");}
 
     keyboardListeners() {throw new Error("Method 'keyboardListeners()' must be implemented.");}
+
+    getGameStateManager() {
+        return this.#GameStateManager;
+    }
 }
 
 // ============================
@@ -149,7 +159,7 @@ class Game {
 
     start() {
         this.#setupCanvas();
-        this.#GameStateManager.switchGameState(this.#GameStateManager.gameStates.inGame); // TODO: change to menu 
+        this.#GameStateManager.switchGameState(this.#GameStateManager.gameStates.menu);
         window.requestAnimationFrame((timeStamp) => {this.#loop(timeStamp)});
     }
 }
@@ -157,6 +167,10 @@ class Game {
 class GameStateManager {
     #currentGameState = null;
     #keysPressed = {};
+
+    constructor() {
+        this.keyboardListeners();
+    }
 
     gameStates = {
         menu: MenuState,
@@ -168,8 +182,7 @@ class GameStateManager {
         if(this.#currentGameState) {
             this.#currentGameState.stop();
         }
-        this.#currentGameState = new gameState;
-        this.keyboardListeners();
+        this.#currentGameState = new gameState(this);
         this.#currentGameState.start();
     }
 
@@ -181,10 +194,8 @@ class GameStateManager {
         document.addEventListener("keydown", (event) => {
             // Set the state of the pressed key to true
             this.#keysPressed[event.key] = true;
-
             this.#currentGameState.keyboardListeners(this.#keysPressed);
         });
-
         document.addEventListener("keyup", (event) => {
             // Set the state of the released key to false
             this.#keysPressed[event.key] = false;
@@ -215,7 +226,10 @@ class MenuState extends GameState {
     }
 
     keyboardListeners(keysPressed) {
-
+        // change gamestate to inGame
+        if(keysPressed['s']) {
+            this.getGameStateManager().switchGameState(this.getGameStateManager().gameStates.inGame);
+        }
     }
 }
 
@@ -223,8 +237,8 @@ class InGameState extends GameState {
     #player;
 
     start() {
-        const playerWidth = 10;
-        const playerHeight = 10;
+        const playerWidth = 20;
+        const playerHeight = 20;
         const xCenter = (canvas.width / 2) - (playerWidth / 2);
         const yCenter = (canvas.height / 2) - (playerHeight / 2);
         this.#player = new Player(xCenter, yCenter, playerWidth, playerHeight, 20, 5);
@@ -242,58 +256,38 @@ class InGameState extends GameState {
         this.#player.render();
     }
 
-    #isIntersectingTop() {
-        if(this.#player.getY() - this.#player.getStepSize() <= 0) {
-            return true;
-        }
-        return false;
-    }
-
-    #isIntersectingBottom() {
-        if(this.#player.getY() + this.#player.getStepSize() >= canvas.height - this.#player.getHeight()) {
-            return true;
-        }
-        return false;
-    }
-
-    #isIntersectingLeft() {
-        if(this.#player.getX() - this.#player.getStepSize() <= 0) {
-            return true;
-        }
-        return false;
-    }
-
-    #isIntersectingRight() {
-        if(this.#player.getX() + this.#player.getStepSize() >= canvas.width - this.#player.getWidth()) {
-            return true;
-        }
-        return false;
-    }
-
     keyboardListeners(keysPressed) {
+        // change gamestate to menu
+        if(keysPressed['Escape']) {
+            this.getGameStateManager().switchGameState(this.getGameStateManager().gameStates.menu);
+        }
+        // walk to top
         if(keysPressed['w']) {
-            if(this.#isIntersectingTop()) {
+            if(this.#player.getY() - this.#player.getStepSize() <= 0) { // intersecting top
                 this.#player.setY(0);
                 return;
             }
             this.#player.setY(this.#player.getY() - this.#player.getStepSize())
         }
+        // walk to bottom
         if(keysPressed['s']) {
-            if(this.#isIntersectingBottom()) {
+            if(this.#player.getY() + this.#player.getStepSize() >= canvas.height - this.#player.getHeight()) { // intersecting bottom
                 this.#player.setY(canvas.height - this.#player.getHeight());
                 return;
             }
             this.#player.setY(this.#player.getY() + this.#player.getStepSize())
         }
+        // walk to left
         if(keysPressed['a']) {
-            if(this.#isIntersectingLeft()) {
+            if(this.#player.getX() - this.#player.getStepSize() <= 0) { // intersecting left
                 this.#player.setX(0);
                 return;
             }
             this.#player.setX(this.#player.getX() - this.#player.getStepSize())
         }
+        // walk to right
         if(keysPressed['d']) {
-            if(this.#isIntersectingRight()) {
+            if(this.#player.getX() + this.#player.getStepSize() >= canvas.width - this.#player.getWidth()) { // intersecting right
                 this.#player.setX(canvas.width - this.#player.getWidth());
                 return;
             }
