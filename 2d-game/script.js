@@ -462,13 +462,27 @@ class MenuState extends GameState {
     }
 
     draw() {
+        const gameTitleText = 'Maze Game';
+        const startGameText = 'Press "S" to start the game.';
+        const escapeGameText = 'Press "ESC" to go to the main menu again.'
+        const copyrightText = '©2023 by HATBE';
+        
+        // title
         ctx.fillStyle = '#2c79ff';
         ctx.font = "50px ARIAL";
-        ctx.fillText(`Menu`, 0, 50);
-        ctx.fillStyle = '#33caff';
+        ctx.fillText(gameTitleText, canvas.width / 2 - ctx.measureText(gameTitleText).width / 2, canvas.height / 2 + 25);
+
+         // subtitle
+        ctx.fillStyle = 'red';
         ctx.font = "25px ARIAL";
-        ctx.fillText('- Press "S" to start', 0, 80);
-        ctx.fillText('- Press "ESC" to escape game', 0, 110);
+        ctx.fillText(startGameText, canvas.width / 2 - ctx.measureText(startGameText).width / 2,  canvas.height / 2 + 60);
+        ctx.fillStyle = 'white';
+        ctx.fillText(escapeGameText, canvas.width / 2 - ctx.measureText(escapeGameText).width / 2, canvas.height - 20);
+
+        // copyright
+         ctx.fillStyle = '#2c79ff';
+         ctx.font = "13px ARIAL";
+         ctx.fillText(copyrightText, canvas.width - ctx.measureText(copyrightText).width - 10, canvas.height - 13);
     }
 
     keyboardListeners(keysPressed) {
