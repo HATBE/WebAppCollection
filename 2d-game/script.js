@@ -14,6 +14,7 @@ class Entity {
     #width;
     #height;
     #stepSize;
+    #isFreezed;
 
     constructor(x = 0,y = 0, width = 10, height = 10, maxHealth = 20, stepSize = 2) {
         if (this.constructor === Entity) {throw new Error("Abstract classes can't be instantiated.");}
@@ -39,11 +40,13 @@ class Entity {
     getMaxHealth() {return this.#maxHealth;}
     getStepSize(){return this.#stepSize;}
     setStepSize(stepSize){this.#stepSize = stepSize;}
+    isFreezed() {return this.#isFreezed;}
+    setFreezed(isFreezed) {this.#isFreezed = isFreezed;}
     getHealth() {return this.#health;}
     setHealth(health) {
         // if health input <= 0 -> die
         if(health <= 0) {
-            this.#die();
+            this.die();
             return;
         }
         // if health input > maxHealth -> health == maxHealth
@@ -63,8 +66,47 @@ class Entity {
         this.setHealth(this.getHealth() - health);
     }
 
-    #die() {
+    die() {
         alert('player has died');
+    }
+
+    playerController(keysPressed) {
+        if(this.isFreezed()) {
+            return;
+        }
+        // walk to top
+        if(keysPressed['w']) {
+            if(this.getY() - this.getStepSize() <= 0) { // intersecting top
+                this.setY(0);
+            } else {
+                this.setY(this.getY() - this.getStepSize());
+            }
+        }
+        // walk to bottom
+        if(keysPressed['s']) {
+            if(this.getY() + this.getStepSize() >= canvas.height - this.getHeight()) { // intersecting bottom
+                this.setY(canvas.height - this.getHeight());
+            } else {
+                this.setY(this.getY() + this.getStepSize());
+            }
+        }
+        // walk to left
+        if(keysPressed['a']) {
+            if(this.getX() - this.getStepSize() <= 0) { // intersecting left
+                this.setX(0);
+            } else {
+                this.setX(this.getX() - this.getStepSize());
+            }
+            
+        }
+        // walk to right
+        if(keysPressed['d']) {
+            if(this.getX() + this.getStepSize() >= canvas.width - this.getWidth()) { // intersecting right
+                this.setX(canvas.width - this.getWidth());
+            } else {
+                this.setX(this.getX() + this.getStepSize());
+            }
+        }
     }
 }
 
@@ -283,11 +325,12 @@ class InGameState extends GameState {
         ctx.fillStyle = 'green';
         ctx.fillRect(500, 400, 20, 20);
 
-        if(Util.doBoxesIntersects(this.#player.getX(), this.#player.getY(), this.#player.getHeight(), this.#player.getWidth(),500, 400, 20, 20)) {
-            /*ctx.fillStyle = 'red';
+        if(Util.doBoxesIntersects(this.#player.getX(), this.#player.getY(), this.#player.getHeight(), this.#player.getWidth(), 500, 400, 20, 20)) {
+            this.#player.setFreezed(true);
+            ctx.fillStyle = 'red';
             ctx.font = "20px ARIAL";
-            ctx.fillText(`Intersects`, 500, 350);*/
-            this.getGameStateManager().switchGameState(this.getGameStateManager().gameStates.gameOver);
+            ctx.fillText(`Intersects`, 500, 350);
+            setTimeout(() => { this.getGameStateManager().switchGameState(this.getGameStateManager().gameStates.gameOver);}, 500);
         }
 
         this.#player.draw();
@@ -298,38 +341,7 @@ class InGameState extends GameState {
         if(keysPressed['Escape']) {
             this.getGameStateManager().switchGameState(this.getGameStateManager().gameStates.menu);
         }
-        // walk to top
-        if(keysPressed['w']) {
-            if(this.#player.getY() - this.#player.getStepSize() <= 0) { // intersecting top
-                this.#player.setY(0);
-                return;
-            }
-            this.#player.setY(this.#player.getY() - this.#player.getStepSize());
-        }
-        // walk to bottom
-        if(keysPressed['s']) {
-            if(this.#player.getY() + this.#player.getStepSize() >= canvas.height - this.#player.getHeight()) { // intersecting bottom
-                this.#player.setY(canvas.height - this.#player.getHeight());
-                return;
-            }
-            this.#player.setY(this.#player.getY() + this.#player.getStepSize());
-        }
-        // walk to left
-        if(keysPressed['a']) {
-            if(this.#player.getX() - this.#player.getStepSize() <= 0) { // intersecting left
-                this.#player.setX(0);
-                return;
-            }
-            this.#player.setX(this.#player.getX() - this.#player.getStepSize());
-        }
-        // walk to right
-        if(keysPressed['d']) {
-            if(this.#player.getX() + this.#player.getStepSize() >= canvas.width - this.#player.getWidth()) { // intersecting right
-                this.#player.setX(canvas.width - this.#player.getWidth());
-                return;
-            }
-            this.#player.setX(this.#player.getX() + this.#player.getStepSize());
-        }
+        this.#player.playerController(keysPressed);
     }
 }
 
