@@ -13,10 +13,11 @@ class Entity {
     #health;
     #width;
     #height;
-    #stepSize;
+    #speed;
     #isFreezed;
+    #color;
 
-    constructor(x = 0,y = 0, width = 10, height = 10, maxHealth = 20, stepSize = 2) {
+    constructor(x = 0,y = 0, width = 10, height = 10, maxHealth = 20, speed = 2, color = 'red') {
         if (this.constructor === Entity) {throw new Error("Abstract classes can't be instantiated.");}
         
         this.#x = x;
@@ -25,25 +26,28 @@ class Entity {
         this.#width = width;
         this.#maxHealth = maxHealth;
         this.#health = maxHealth;
-        this.#stepSize = stepSize;
+        this.#speed = speed;
+        this.#color = color;
     }
 
     tick() {throw new Error("Method 'tick()' must be implemented.");}
     draw() {throw new Error("Method 'draw()' must be implemented.");}
 
     getX() {return this.#x;}
-    setX(x) {this.#x = x;}
+    setX(x) {this.#x = x;} // input: int
     getY() {return this.#y;}
-    setY(y) {this.#y = y;}
+    setY(y) {this.#y = y;} // input: int
     getWidth() {return this.#width;}
     getHeight() {return this.#height;}
     getMaxHealth() {return this.#maxHealth;}
-    getStepSize(){return this.#stepSize;}
-    setStepSize(stepSize){this.#stepSize = stepSize;}
+    getSpeed(){return this.#speed;}
+    setSpeed(speed){this.#speed = speed;}
     isFreezed() {return this.#isFreezed;}
     setFreezed(isFreezed) {this.#isFreezed = isFreezed;}
+    getColor() {return this.#color;}
+    setColor(color) {this.#color = color;} // input: string (color)
     getHealth() {return this.#health;}
-    setHealth(health) {
+    setHealth(health) { // input: int
         // if health input <= 0 -> die
         if(health <= 0) {
             this.die();
@@ -57,56 +61,76 @@ class Entity {
         this.#health = health;
     }
 
-    addHealth(health) {
+    addHealth(health) { // input: int
         this.setHealth(this.getHealth() + health);
     }
 
-    removeHealth(health) {
-
+    removeHealth(health) {  // input: int
         this.setHealth(this.getHealth() - health);
+    }
+
+    getHealthPercentage() {
+        return this.getHealth() / this.getMaxHealth() * 100;
     }
 
     die() {
         alert('player has died');
     }
 
-    playerController(keysPressed) {
+    playerController(keysPressed) {  // input: object (keys Object)
         if(this.isFreezed()) {
             return;
         }
         // walk to top
         if(keysPressed['w']) {
-            if(this.getY() - this.getStepSize() <= 0) { // intersecting top
+            if(this.getY() - this.getSpeed() <= 0) { // intersecting top
                 this.setY(0);
             } else {
-                this.setY(this.getY() - this.getStepSize());
+                this.setY(this.getY() - this.getSpeed());
             }
         }
         // walk to bottom
         if(keysPressed['s']) {
-            if(this.getY() + this.getStepSize() >= canvas.height - this.getHeight()) { // intersecting bottom
+            if(this.getY() + this.getSpeed() >= canvas.height - this.getHeight()) { // intersecting bottom
                 this.setY(canvas.height - this.getHeight());
             } else {
-                this.setY(this.getY() + this.getStepSize());
+                this.setY(this.getY() + this.getSpeed());
             }
         }
         // walk to left
         if(keysPressed['a']) {
-            if(this.getX() - this.getStepSize() <= 0) { // intersecting left
+            if(this.getX() - this.getSpeed() <= 0) { // intersecting left
                 this.setX(0);
             } else {
-                this.setX(this.getX() - this.getStepSize());
+                this.setX(this.getX() - this.getSpeed());
             }
             
         }
         // walk to right
         if(keysPressed['d']) {
-            if(this.getX() + this.getStepSize() >= canvas.width - this.getWidth()) { // intersecting right
+            if(this.getX() + this.getSpeed() >= canvas.width - this.getWidth()) { // intersecting right
                 this.setX(canvas.width - this.getWidth());
             } else {
-                this.setX(this.getX() + this.getStepSize());
+                this.setX(this.getX() + this.getSpeed());
             }
         }
+    }
+
+    followEntity(targetEntity) { // input: entity
+        // calculate the direction from this entity to the target entity
+        const dx = targetEntity.getX() - this.getX()
+        const dy = targetEntity.getY() - this.getY();
+
+        // calculate the distance between the two entities
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        // normalize the direction vector
+        const directionX = dx / distance;
+        const directionY = dy / distance;
+
+        // move this entity towards the target entity
+        this.setX(this.getX() + directionX * this.getSpeed() / 3);
+        this.setY(this.getY() + directionY * this.getSpeed() / 3);
     }
 }
 
@@ -138,7 +162,7 @@ class GameState {
 // ============================
 
 class Util {
-    static doBoxesIntersects(box1X, box1Y, box1Height, box1Width, box2X, box2Y, box2Height, box2Width) {
+    static doBoxesIntersect(box1X, box1Y, box1Height, box1Width, box2X, box2Y, box2Height, box2Width) {
         // Calculate the right, left, top, and bottom coordinates of each box
         const box1Right = box1X + box1Width - 1;
         const box1Bottom = box1Y + box1Height - 1;
@@ -157,6 +181,10 @@ class Util {
 
         // If none of the above conditions are met, the boxes intersect
         return true;
+    }
+
+    static doEntitiesIntersect(entity1, entity2) { // input: entity1, entity2
+        return this.doBoxesIntersect(entity1.getX(), entity1.getY(), entity1.getHeight(), entity1.getWidth(), entity2.getX(), entity2.getY(), entity2.getHeight(), entity2.getWidth());
     }
 }
 
@@ -304,13 +332,14 @@ class MenuState extends GameState {
 
 class InGameState extends GameState {
     #player;
+    #enemy;
+
+    #testX = 400;
+    #testY = 500;
 
     start() {
-        const playerWidth = 20;
-        const playerHeight = 20;
-        const xCenter = (canvas.width / 2) - (playerWidth / 2);
-        const yCenter = (canvas.height / 2) - (playerHeight / 2);
-        this.#player = new Player(xCenter, yCenter, playerWidth, playerHeight, 20, 5);
+        this.#player = new Player((canvas.width / 2) - (20 / 2), (canvas.height / 2) - (20 / 2), 20, 20, 20, 5, 'red');
+        this.#enemy = new Enemy(0, 0, 20, 20, 10, 5, 'green');
     }
 
     stop() {
@@ -318,21 +347,22 @@ class InGameState extends GameState {
     }
 
     tick() {
+        this.#enemy.tick();
         this.#player.tick();
+
+        this.#enemy.followEntity(this.#player);
     }
 
     draw() {
-        ctx.fillStyle = 'green';
-        ctx.fillRect(500, 400, 20, 20);
-
-        if(Util.doBoxesIntersects(this.#player.getX(), this.#player.getY(), this.#player.getHeight(), this.#player.getWidth(), 500, 400, 20, 20)) {
-            this.#player.setFreezed(true);
+        if(Util.doEntitiesIntersect(this.#player, this.#enemy)) {
+            //this.#player.setFreezed(true);
             ctx.fillStyle = 'red';
             ctx.font = "20px ARIAL";
             ctx.fillText(`Intersects`, 500, 350);
-            setTimeout(() => { this.getGameStateManager().switchGameState(this.getGameStateManager().gameStates.gameOver);}, 500);
+            //setTimeout(() => { this.getGameStateManager().switchGameState(this.getGameStateManager().gameStates.gameOver);}, 500);
         }
 
+        this.#enemy.draw();
         this.#player.draw();
     }
 
@@ -361,7 +391,7 @@ class GameOverState extends GameState {
     draw() {
         ctx.fillStyle = 'red';
         ctx.font = '50px Arial';
-        const gameOverText = 'GameOver';
+        const gameOverText = 'Game Over';
         ctx.fillText(gameOverText, canvas.width / 2 - ctx.measureText(gameOverText).width / 2, canvas.height / 2 + 25);
     }
 
@@ -382,11 +412,19 @@ class Player extends Entity {
     }
 
     draw() {
-        ctx.fillStyle = 'red';
+        ctx.fillStyle = this.getColor();
         ctx.fillRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
+    }
+}
 
-        ctx.fillStyle = 'blue';
-        ctx.fillRect(this.getX(), this.getY(), 2, 2);
+class Enemy extends Entity {
+    tick() {
+
+    }
+
+    draw() {
+        ctx.fillStyle = this.getColor();
+        ctx.fillRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
     }
 }
 
@@ -394,6 +432,6 @@ class Player extends Entity {
 // GAME
 // ============================
 
-// Initialize Game
+// initialize Game
 const game = new Game(1280, 720);
 game.start();
