@@ -18,8 +18,9 @@ class Entity {
     #color;
     #dx;
     #dy;
+    #name;
 
-    constructor(x = 0,y = 0, width = 10, height = 10, maxHealth = 20, speed = 2, color = 'red') {
+    constructor(x = 0,y = 0, width = 10, height = 10, maxHealth = 20, speed = 2, color = 'red', name = '') {
         if (this.constructor === Entity) {throw new Error("Abstract classes can't be instantiated.");}
         
         this.#x = x;
@@ -33,6 +34,7 @@ class Entity {
         this.#isFreezed = false;
         this.#dx = 0;
         this.#dy = 0;
+        this.#name = name;
     }
 
     tick() {throw new Error("Method 'tick()' must be implemented.");}
@@ -49,6 +51,7 @@ class Entity {
     getY() {
         return this.#y;
     }
+
     setY(y) { // input: int
         this.#y = y;
     } 
@@ -121,6 +124,14 @@ class Entity {
             return;
         }
         this.#health = health;
+    }
+
+    getName() {
+        return this.#name;
+    }
+    
+    setName(name) {
+        this.#name = name;
     }
 
     addHealth(health) { // input: int
@@ -197,6 +208,17 @@ class Entity {
         this.setY(newY);
     }
 
+    getDistanceFromEntity(targetEntity) {
+        // calculate the direction from this entity to the target entity
+        const dx = targetEntity.getX() - this.getX()
+        const dy = targetEntity.getY() - this.getY();
+
+        // calculate the distance between the two entities
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        return distance;
+    }
+
     followEntity(targetEntity) { // input: entity
         // calculate the direction from this entity to the target entity
         const dx = targetEntity.getX() - this.getX()
@@ -210,8 +232,18 @@ class Entity {
         const directionY = dy / distance;
 
         // move this entity towards the target entity
-        this.setX(this.getX() + directionX * this.getSpeed() / 3);
-        this.setY(this.getY() + directionY * this.getSpeed() / 3);
+        this.setX(this.getX() + directionX * this.getSpeed() / 2);
+        this.setY(this.getY() + directionY * this.getSpeed() / 2);
+    }
+
+    _drawNameTag() {
+        // name
+        if(this.getName() != null) {
+            const text = this.getName();
+            ctx.fillStyle = 'white';
+            ctx.font = "12px ARIAL";
+            ctx.fillText(text, this.getX() - (ctx.measureText(text).width / 2) + this.getWidth() / 2, this.getY() - 5);
+        }
     }
 }
 
@@ -338,6 +370,40 @@ class Game {
     }
 }
 
+// ============================
+// Entities 
+
+class Player extends Entity {
+    tick() {
+
+    }
+
+    draw() {
+        // square
+        ctx.fillStyle = this.getColor();
+        ctx.fillRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
+
+        this._drawNameTag();
+    }
+}
+
+class Enemy extends Entity {
+    tick() {
+
+    }
+
+    draw() {
+        // square
+        ctx.fillStyle = this.getColor();
+        ctx.fillRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
+
+        this._drawNameTag();
+    }
+}
+
+// ============================
+// GAME STATES
+
 class GameStateManager {
     #currentGameState = null;
     #keysPressed = {};
@@ -382,9 +448,6 @@ class GameStateManager {
     }
 }
 
-// ============================
-// GAME STATES
-
 class MenuState extends GameState {
     start() {
 
@@ -424,8 +487,8 @@ class InGameState extends GameState {
     #testY = 500;
 
     start() {
-        this.#player = new Player((canvas.width / 2) - (20 / 2), (canvas.height / 2) - (20 / 2), 20, 20, 20, 5, 'red');
-        this.#enemy = new Enemy(0, 0, 20, 20, 10, 5, 'green');
+        this.#player = new Player((canvas.width / 2) - (20 / 2), (canvas.height / 2) - (20 / 2), 20, 20, 20, 5, 'red', 'User');
+        this.#enemy = new Enemy(200, 200, 20, 20, 10, 2, 'green', 'Enemy');
     }
 
     stop() {
@@ -433,23 +496,46 @@ class InGameState extends GameState {
     }
 
     tick() {
+        const distancePlayerEnemy = this.#enemy.getDistanceFromEntity(this.#player);
+        const playerAndEnemyIntersect = Util.doEntitiesIntersect(this.#player, this.#enemy);
+
         this.#enemy.tick();
         this.#player.tick();
 
-        setTimeout(() => {this.#enemy.followEntity(this.#player)}, 10_000)
+        if(!playerAndEnemyIntersect && distancePlayerEnemy <= 300) {
+            this.#enemy.followEntity(this.#player)
+        }
+
+        if(playerAndEnemyIntersect) {
+            this.#player.setFreezed(true);
+            this.getGameStateManager().switchGameState(this.getGameStateManager().gameStates.gameOver);
+        }
     }
 
     draw() {
-        if(Util.doEntitiesIntersect(this.#player, this.#enemy)) {
-            //this.#player.setFreezed(true);
-            ctx.fillStyle = 'red';
-            ctx.font = "20px ARIAL";
-            ctx.fillText(`Intersects`, 500, 350);
-            //setTimeout(() => { this.getGameStateManager().switchGameState(this.getGameStateManager().gameStates.gameOver);}, 500);
-        }
+        const distancePlayerEnemy = this.#enemy.getDistanceFromEntity(this.#player);
 
         this.#enemy.draw();
         this.#player.draw();
+
+        if(Util.doEntitiesIntersect(this.#player, this.#enemy)) {
+            ctx.fillStyle = 'red';
+            ctx.font = "20px ARIAL";
+            ctx.fillText(`Intersects`, 500, 350);
+        }
+
+        // print distance
+        ctx.fillStyle = distancePlayerEnemy >= 300 ? 'red' : 'green';
+        ctx.font = "20px ARIAL";
+        ctx.fillText(Math.floor(distancePlayerEnemy), this.#enemy.getX() + 80, this.#enemy.getY());
+
+        // print line between player and enemy
+        ctx.strokeStyle = 'blue';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(this.#enemy.getX() + this.#enemy.getWidth() / 2, this.#enemy.getY() + this.#enemy.getHeight() / 2);
+        ctx.lineTo(this.#player.getX() + this.#player.getWidth() / 2, this.#player.getY() + this.#player.getHeight() / 2);
+        ctx.stroke();
     }
 
     keyboardListeners(keysPressed) {
@@ -486,31 +572,6 @@ class GameOverState extends GameState {
         if(keysPressed['Escape']) {
             this.getGameStateManager().switchGameState(this.getGameStateManager().gameStates.menu);
         }
-    }
-}
-
-// ============================
-// Entities 
-
-class Player extends Entity {
-    tick() {
-
-    }
-
-    draw() {
-        ctx.fillStyle = this.getColor();
-        ctx.fillRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
-    }
-}
-
-class Enemy extends Entity {
-    tick() {
-
-    }
-
-    draw() {
-        ctx.fillStyle = this.getColor();
-        ctx.fillRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
     }
 }
 
