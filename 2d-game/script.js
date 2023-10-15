@@ -3,7 +3,7 @@ const ctx = canvas.getContext("2d");
 
 // ============================
 // ABSTRACT CLASSES
-//============================
+// ============================
 
 // abstract
 class Entity {
@@ -28,7 +28,7 @@ class Entity {
     }
 
     tick() {throw new Error("Method 'tick()' must be implemented.");}
-    render() {throw new Error("Method 'render()' must be implemented.");}
+    draw() {throw new Error("Method 'draw()' must be implemented.");}
 
     getX() {return this.#x;}
     setX(x) {this.#x = x;}
@@ -43,7 +43,7 @@ class Entity {
     setHealth(health) {
         // if health input <= 0 -> die
         if(health <= 0) {
-            this.die();
+            this.#die();
             return;
         }
         // if health input > maxHealth -> health == maxHealth
@@ -63,7 +63,7 @@ class Entity {
         this.setHealth(this.getHealth() - health);
     }
 
-    die() {
+    #die() {
         alert('player has died');
     }
 }
@@ -82,7 +82,7 @@ class GameState {
     stop() {throw new Error("Method 'stop()' must be implemented.");}
 
     tick() {throw new Error("Method 'tick()' must be implemented.");}
-    render() {throw new Error("Method 'render()' must be implemented.");}
+    draw() {throw new Error("Method 'draw()' must be implemented.");}
 
     keyboardListeners() {throw new Error("Method 'keyboardListeners()' must be implemented.");}
 
@@ -93,7 +93,7 @@ class GameState {
 
 // ============================
 // CLASSES
-//============================
+// ============================
 
 class Game {
     #oldTimeStamp = 0;
@@ -131,7 +131,7 @@ class Game {
             this.#currentFPS = Math.round(1000 / elapsed);
             
             this.#tick();
-            this.#render();
+            this.#draw();
         }
 
         // Request the next frame
@@ -150,11 +150,11 @@ class Game {
        this.#GameStateManager.getCurrentGameState().tick(); 
     }
 
-    #render() {
+    #draw() {
         ctx.clearRect(0, 0, this.#gameWidth, this.#gameHeight);
         ctx.fillStyle = 'black';
         ctx.fillRect(0, 0, this.#gameWidth, this.#gameHeight);
-        this.#GameStateManager.getCurrentGameState().render(); 
+        this.#GameStateManager.getCurrentGameState().draw(); 
     }
 
     start() {
@@ -219,7 +219,7 @@ class MenuState extends GameState {
 
     }
 
-    render() {
+    draw() {
         ctx.fillStyle = 'red';
         ctx.font = "50px ARIAL";
         ctx.fillText(`Menu`, 0, 50);
@@ -252,8 +252,8 @@ class InGameState extends GameState {
         this.#player.tick();
     }
 
-    render() {
-        this.#player.render();
+    draw() {
+        this.#player.draw();
     }
 
     keyboardListeners(keysPressed) {
@@ -267,7 +267,7 @@ class InGameState extends GameState {
                 this.#player.setY(0);
                 return;
             }
-            this.#player.setY(this.#player.getY() - this.#player.getStepSize())
+            this.#player.setY(this.#player.getY() - this.#player.getStepSize());
         }
         // walk to bottom
         if(keysPressed['s']) {
@@ -275,7 +275,7 @@ class InGameState extends GameState {
                 this.#player.setY(canvas.height - this.#player.getHeight());
                 return;
             }
-            this.#player.setY(this.#player.getY() + this.#player.getStepSize())
+            this.#player.setY(this.#player.getY() + this.#player.getStepSize());
         }
         // walk to left
         if(keysPressed['a']) {
@@ -283,7 +283,7 @@ class InGameState extends GameState {
                 this.#player.setX(0);
                 return;
             }
-            this.#player.setX(this.#player.getX() - this.#player.getStepSize())
+            this.#player.setX(this.#player.getX() - this.#player.getStepSize());
         }
         // walk to right
         if(keysPressed['d']) {
@@ -291,7 +291,7 @@ class InGameState extends GameState {
                 this.#player.setX(canvas.width - this.#player.getWidth());
                 return;
             }
-            this.#player.setX(this.#player.getX() + this.#player.getStepSize())
+            this.#player.setX(this.#player.getX() + this.#player.getStepSize());
         }
     }
 }
@@ -309,7 +309,7 @@ class GameOverState extends GameState {
 
     }
 
-    render() {
+    draw() {
         ctx.fillStyle = 'red';
         ctx.font = "50px ARIAL";
         ctx.fillText(`Game Over`, 0, 50);
@@ -328,11 +328,9 @@ class Player extends Entity {
 
     }
 
-    render() {
+    draw() {
         ctx.fillStyle = 'red';
         ctx.fillRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
-
-
 
         ctx.fillStyle = 'blue';
         ctx.fillRect(this.getX(), this.getY(), 2, 2);
@@ -341,7 +339,7 @@ class Player extends Entity {
 
 // ============================
 // GAME
-//============================
+// ============================
 
 // Initialize Game
 const game = new Game(1280, 720);
