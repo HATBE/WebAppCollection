@@ -16,6 +16,8 @@ class Entity {
     #speed;
     #isFreezed;
     #color;
+    #dx;
+    #dy;
 
     constructor(x = 0,y = 0, width = 10, height = 10, maxHealth = 20, speed = 2, color = 'red') {
         if (this.constructor === Entity) {throw new Error("Abstract classes can't be instantiated.");}
@@ -28,25 +30,85 @@ class Entity {
         this.#health = maxHealth;
         this.#speed = speed;
         this.#color = color;
+        this.#isFreezed = false;
+        this.#dx = 0;
+        this.#dy = 0;
     }
 
     tick() {throw new Error("Method 'tick()' must be implemented.");}
     draw() {throw new Error("Method 'draw()' must be implemented.");}
 
-    getX() {return this.#x;}
-    setX(x) {this.#x = x;} // input: int
-    getY() {return this.#y;}
-    setY(y) {this.#y = y;} // input: int
-    getWidth() {return this.#width;}
-    getHeight() {return this.#height;}
-    getMaxHealth() {return this.#maxHealth;}
-    getSpeed(){return this.#speed;}
-    setSpeed(speed){this.#speed = speed;}
-    isFreezed() {return this.#isFreezed;}
-    setFreezed(isFreezed) {this.#isFreezed = isFreezed;}
-    getColor() {return this.#color;}
-    setColor(color) {this.#color = color;} // input: string (color)
-    getHealth() {return this.#health;}
+    getX() {
+        return this.#x;
+    }
+
+    setX(x) { // input: int
+        this.#x = x;
+    } 
+    
+    getY() {
+        return this.#y;
+    }
+    setY(y) { // input: int
+        this.#y = y;
+    } 
+
+    getDx() {
+        return this.#dx;
+    }
+
+    setDx(dx) { // input: int
+        this.#dx = dx;
+    }
+
+    getDy() {
+        return this.#dy;
+    }
+
+    setDy(dy) { // input:  int
+        this.#dy = dy;
+    }
+
+    getWidth() {
+        return this.#width;
+    }
+
+    getHeight() {
+        return this.#height;
+    }
+
+    getMaxHealth() {
+        return this.#maxHealth;
+    }
+
+    getSpeed() {
+        return this.#speed;
+    }
+
+    setSpeed(speed) { // input: int
+        this.#speed = speed;
+    }
+
+    isFreezed() {
+        return this.#isFreezed;
+    }
+
+    setFreezed(isFreezed) { // input: boolean
+        this.#isFreezed = isFreezed;
+    }
+
+    getColor() {
+        return this.#color;
+    }
+
+    setColor(color) { // input: string (color)
+        this.#color = color;
+    }
+
+    getHealth() {
+        return this.#health;
+    }
+
     setHealth(health) { // input: int
         // if health input <= 0 -> die
         if(health <= 0) {
@@ -77,43 +139,62 @@ class Entity {
         alert('player has died');
     }
 
-    playerController(keysPressed) {  // input: object (keys Object)
-        if(this.isFreezed()) {
+    playerController(keysPressed) {
+        if (this.isFreezed()) {
             return;
         }
-        // walk to top
-        if(keysPressed['w']) {
-            if(this.getY() - this.getSpeed() <= 0) { // intersecting top
-                this.setY(0);
-            } else {
-                this.setY(this.getY() - this.getSpeed());
-            }
+    
+        // initialize dx and dy to 0
+        let dx = 0;
+        let dy = 0;
+    
+        // calculate the direction based on the pressed keys
+        if (keysPressed['w']) {
+            dy -= 1;
         }
-        // walk to bottom
-        if(keysPressed['s']) {
-            if(this.getY() + this.getSpeed() >= canvas.height - this.getHeight()) { // intersecting bottom
-                this.setY(canvas.height - this.getHeight());
-            } else {
-                this.setY(this.getY() + this.getSpeed());
-            }
+        if (keysPressed['s']) {
+            dy += 1;
         }
-        // walk to left
-        if(keysPressed['a']) {
-            if(this.getX() - this.getSpeed() <= 0) { // intersecting left
-                this.setX(0);
-            } else {
-                this.setX(this.getX() - this.getSpeed());
-            }
-            
+        if (keysPressed['a']) {
+            dx -= 1;
         }
-        // walk to right
-        if(keysPressed['d']) {
-            if(this.getX() + this.getSpeed() >= canvas.width - this.getWidth()) { // intersecting right
-                this.setX(canvas.width - this.getWidth());
-            } else {
-                this.setX(this.getX() + this.getSpeed());
-            }
+        if (keysPressed['d']) {
+            dx += 1;
         }
+    
+        // calculate the length of the movement vector
+        const length = Math.sqrt(dx * dx + dy * dy);
+    
+        // normalize the movement vector if it's not zero
+        if (length !== 0) {
+            dx = (dx / length) * this.getSpeed();
+            dy = (dy / length) * this.getSpeed();
+        }
+    
+        // calculate the new position
+        let newX = this.getX() + dx;
+        let newY = this.getY() + dy;
+    
+        // check for collisions with the game boundaries
+        if (newX < 0) {
+            newX = 0;
+        } else if (newX + this.getWidth() > canvas.width) {
+            newX = canvas.width - this.getWidth();
+        }
+    
+        if (newY < 0) {
+            newY = 0;
+        } else if (newY + this.getHeight() > canvas.height) {
+            newY = canvas.height - this.getHeight();
+        }
+    
+        // update dx and dy
+        this.setDx(dx);
+        this.setDy(dy);
+    
+        // update the player's position
+        this.setX(newX);
+        this.setY(newY);
     }
 
     followEntity(targetEntity) { // input: entity
@@ -163,23 +244,23 @@ class GameState {
 
 class Util {
     static doBoxesIntersect(box1X, box1Y, box1Height, box1Width, box2X, box2Y, box2Height, box2Width) {
-        // Calculate the right, left, top, and bottom coordinates of each box
+        // calculate the right, left, top, and bottom coordinates of each box
         const box1Right = box1X + box1Width - 1;
         const box1Bottom = box1Y + box1Height - 1;
         const box2Right = box2X + box2Width - 1;
         const box2Bottom = box2Y + box2Height - 1;
 
-        // Check if box1 is to the left of box2
+        // check if box1 is to the left of box2
         if (box1Right < box2X || box2Right < box1X) {
             return false;
         }
 
-        // Check if box1 is above box2
+        // check if box1 is above box2
         if (box1Bottom < box2Y || box2Bottom < box1Y) {
             return false;
         }
 
-        // If none of the above conditions are met, the boxes intersect
+        // if none of the above conditions are met, the boxes intersect
         return true;
     }
 
@@ -287,11 +368,16 @@ class GameStateManager {
         document.addEventListener("keydown", (event) => {
             // Set the state of the pressed key to true
             this.#keysPressed[event.key] = true;
-            this.#currentGameState.keyboardListeners(this.#keysPressed);
+            if (this.#currentGameState) {
+                this.#currentGameState.keyboardListeners(this.#keysPressed);
+            }
         });
         document.addEventListener("keyup", (event) => {
             // Set the state of the released key to false
             this.#keysPressed[event.key] = false;
+             if (this.#currentGameState) {
+                this.#currentGameState.keyboardListeners(this.#keysPressed);
+            }
         });
     }
 }
@@ -350,7 +436,7 @@ class InGameState extends GameState {
         this.#enemy.tick();
         this.#player.tick();
 
-        this.#enemy.followEntity(this.#player);
+        setTimeout(() => {this.#enemy.followEntity(this.#player)}, 10_000)
     }
 
     draw() {
