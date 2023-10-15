@@ -95,6 +95,29 @@ class GameState {
 // CLASSES
 // ============================
 
+class Util {
+    static doBoxesIntersects(box1X, box1Y, box1Height, box1Width, box2X, box2Y, box2Height, box2Width) {
+        // Calculate the right, left, top, and bottom coordinates of each box
+        const box1Right = box1X + box1Width - 1;
+        const box1Bottom = box1Y + box1Height - 1;
+        const box2Right = box2X + box2Width - 1;
+        const box2Bottom = box2Y + box2Height - 1;
+
+        // Check if box1 is to the left of box2
+        if (box1Right < box2X || box2Right < box1X) {
+            return false;
+        }
+
+        // Check if box1 is above box2
+        if (box1Bottom < box2Y || box2Bottom < box1Y) {
+            return false;
+        }
+
+        // If none of the above conditions are met, the boxes intersect
+        return true;
+    }
+}
+
 class Game {
     #oldTimeStamp = 0;
     #targetFPS = 60;
@@ -220,9 +243,13 @@ class MenuState extends GameState {
     }
 
     draw() {
-        ctx.fillStyle = 'red';
+        ctx.fillStyle = '#2c79ff';
         ctx.font = "50px ARIAL";
         ctx.fillText(`Menu`, 0, 50);
+        ctx.fillStyle = '#33caff';
+        ctx.font = "25px ARIAL";
+        ctx.fillText('- Press "S" to start', 0, 80);
+        ctx.fillText('- Press "ESC" to escape game', 0, 110);
     }
 
     keyboardListeners(keysPressed) {
@@ -253,6 +280,16 @@ class InGameState extends GameState {
     }
 
     draw() {
+        ctx.fillStyle = 'green';
+        ctx.fillRect(500, 400, 20, 20);
+
+        if(Util.doBoxesIntersects(this.#player.getX(), this.#player.getY(), this.#player.getHeight(), this.#player.getWidth(),500, 400, 20, 20)) {
+            /*ctx.fillStyle = 'red';
+            ctx.font = "20px ARIAL";
+            ctx.fillText(`Intersects`, 500, 350);*/
+            this.getGameStateManager().switchGameState(this.getGameStateManager().gameStates.gameOver);
+        }
+
         this.#player.draw();
     }
 
@@ -311,12 +348,16 @@ class GameOverState extends GameState {
 
     draw() {
         ctx.fillStyle = 'red';
-        ctx.font = "50px ARIAL";
-        ctx.fillText(`Game Over`, 0, 50);
+        ctx.font = '50px Arial';
+        const gameOverText = 'GameOver';
+        ctx.fillText(gameOverText, canvas.width / 2 - ctx.measureText(gameOverText).width / 2, canvas.height / 2 + 25);
     }
 
     keyboardListeners(keysPressed) {
-
+        // change gamestate to menu
+        if(keysPressed['Escape']) {
+            this.getGameStateManager().switchGameState(this.getGameStateManager().gameStates.menu);
+        }
     }
 }
 
