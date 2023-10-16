@@ -1,6 +1,8 @@
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext("2d");
 
+let debug = false;
+
 // ============================
 // ABSTRACT CLASSES
 // ============================
@@ -16,8 +18,6 @@ class Entity {
     #speed;
     #isFreezed;
     #color;
-    #dx;
-    #dy;
     #name;
 
     constructor(x = 0,y = 0, width = 10, height = 10, maxHealth = 20, speed = 2, color = 'red', name = '') {
@@ -32,8 +32,6 @@ class Entity {
         this.#speed = speed;
         this.#color = color;
         this.#isFreezed = false;
-        this.#dx = 0;
-        this.#dy = 0;
         this.#name = name;
     }
 
@@ -54,22 +52,6 @@ class Entity {
 
     setY(y) { // input: int
         this.#y = y;
-    } 
-
-    getDx() {
-        return this.#dx;
-    }
-
-    setDx(dx) { // input: int
-        this.#dx = dx;
-    }
-
-    getDy() {
-        return this.#dy;
-    }
-
-    setDy(dy) { // input:  int
-        this.#dy = dy;
     }
 
     getWidth() {
@@ -160,16 +142,19 @@ class Entity {
         let dy = 0;
     
         // calculate the direction based on the pressed keys
-        if (keysPressed['w']) {
+        if(keysPressed['w'] || keysPressed['ArrowUp']) {
             dy -= 1;
         }
-        if (keysPressed['s']) {
+
+        if(keysPressed['s'] || keysPressed['ArrowDown']) {
             dy += 1;
         }
-        if (keysPressed['a']) {
+
+        if(keysPressed['a'] || keysPressed['ArrowLeft']) {
             dx -= 1;
         }
-        if (keysPressed['d']) {
+
+        if(keysPressed['d'] || keysPressed['ArrowRight']) {
             dx += 1;
         }
     
@@ -198,11 +183,7 @@ class Entity {
         } else if (newY + this.getHeight() > canvas.height) {
             newY = canvas.height - this.getHeight();
         }
-    
-        // update dx and dy
-        this.setDx(dx);
-        this.setDy(dy);
-    
+
         // update the player's position
         this.setX(newX);
         this.setY(newY);
@@ -245,6 +226,10 @@ class Entity {
             ctx.fillText(text, this.getX() - (ctx.measureText(text).width / 2) + this.getWidth() / 2, this.getY() - 5);
         }
     }
+
+    _drawSelf() {
+        DrawPreset.square(this.getX(), this.getY(), this.getWidth(), this.getHeight(), this.getColor());
+    }
 }
 
 // abstract
@@ -263,7 +248,7 @@ class GameState {
     tick() {throw new Error("Method 'tick()' must be implemented.");}
     draw() {throw new Error("Method 'draw()' must be implemented.");}
 
-    keyboardListeners() {throw new Error("Method 'keyboardListeners()' must be implemented.");}
+    keyboardEvents() {throw new Error("Method 'keyboardEvents()' must be implemented.");}
 
     getGameStateManager() {
         return this.#GameStateManager;
@@ -273,6 +258,32 @@ class GameState {
 // ============================
 // CLASSES
 // ============================
+
+class DrawPreset {
+    static square(x = 0, y = 0, width = 20, height = 20, color = 'white') {
+        ctx.fillStyle = color;
+        ctx.fillRect(x, y, width, height);
+    }
+
+    static clearRect(x, y, width, height) {
+        ctx.clearRect(x, y, width, height);
+    }
+
+    static debugGrid() {
+         // checkered pattern over whole background
+        for(let y = 0; y < canvas.height; y += 10) {
+            for(let x = 0; x < canvas.width; x += 10) {
+                    ctx.fillStyle = x % (10 * 2) ^ y % (10 * 2) ? '#1c1c1c' : 'black';
+                ctx.fillRect(x, y, 10, 10);
+            }
+        }
+
+        // center crosshair
+        ctx.fillStyle = 'red';
+        ctx.fillRect(0, canvas.height / 2, canvas.width, 1);
+        ctx.fillRect(canvas.width / 2, 0, 1, canvas.height);
+    }
+}
 
 class Util {
     static doBoxesIntersect(box1X, box1Y, box1Height, box1Width, box2X, box2Y, box2Height, box2Width) {
@@ -336,7 +347,10 @@ class Game {
             // Calculate fps
             this.#currentFPS = Math.round(1000 / elapsed);
             
+            // tick game
             this.#tick();
+
+            // draw game
             this.#draw();
         }
 
@@ -353,19 +367,34 @@ class Game {
     }
 
     #tick() {
+        // tick current gameState
        this.#GameStateManager.getCurrentGameState().tick(); 
     }
 
     #draw() {
-        ctx.clearRect(0, 0, this.#gameWidth, this.#gameHeight);
-        ctx.fillStyle = 'black';
-        ctx.fillRect(0, 0, this.#gameWidth, this.#gameHeight);
+        // clear screen
+        DrawPreset.clearRect();
+
+        // make default dark background
+        DrawPreset.square(0, 0, this.#gameWidth, this.#gameHeight, 'black');
+
+        // draw debug grid
+        if(debug) {
+            DrawPreset.debugGrid();
+        }
+        
+        // draw current gameState
         this.#GameStateManager.getCurrentGameState().draw(); 
     }
 
     start() {
+        // setup canvas
         this.#setupCanvas();
+        
+        // switch to default gamestate -> menu
         this.#GameStateManager.switchGameState(this.#GameStateManager.gameStates.menu);
+
+        // start game loop
         window.requestAnimationFrame((timeStamp) => {this.#loop(timeStamp)});
     }
 }
@@ -379,10 +408,7 @@ class Player extends Entity {
     }
 
     draw() {
-        // square
-        ctx.fillStyle = this.getColor();
-        ctx.fillRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
-
+        this._drawSelf();
         this._drawNameTag();
     }
 }
@@ -393,10 +419,7 @@ class Enemy extends Entity {
     }
 
     draw() {
-        // square
-        ctx.fillStyle = this.getColor();
-        ctx.fillRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
-
+        this._drawSelf();
         this._drawNameTag();
     }
 }
@@ -409,7 +432,7 @@ class GameStateManager {
     #keysPressed = {};
 
     constructor() {
-        this.keyboardListeners();
+        this.keyboardEvents();
     }
 
     gameStates = {
@@ -430,19 +453,25 @@ class GameStateManager {
         return this.#currentGameState;
     }
 
-    keyboardListeners() {
+    keyboardEvents() {
         document.addEventListener("keydown", (event) => {
             // Set the state of the pressed key to true
             this.#keysPressed[event.key] = true;
             if (this.#currentGameState) {
-                this.#currentGameState.keyboardListeners(this.#keysPressed);
+                this.#currentGameState.keyboardEvents(this.#keysPressed);
+            }
+
+            // D + M Key pressed
+            // toggle debug mode
+            if(this.#keysPressed['d'] && this.#keysPressed['m']) {
+                debug = !debug;
             }
         });
         document.addEventListener("keyup", (event) => {
             // Set the state of the released key to false
             this.#keysPressed[event.key] = false;
              if (this.#currentGameState) {
-                this.#currentGameState.keyboardListeners(this.#keysPressed);
+                this.#currentGameState.keyboardEvents(this.#keysPressed);
             }
         });
     }
@@ -462,30 +491,29 @@ class MenuState extends GameState {
     }
 
     draw() {
-        const gameTitleText = 'Maze Game';
-        const startGameText = 'Press "S" to start the game.';
-        const escapeGameText = 'Press "ESC" to go to the main menu again.'
-        const copyrightText = '©2023 by HATBE';
-        
         // title
+        const gameTitleText = 'Maze Game';
         ctx.fillStyle = '#2c79ff';
-        ctx.font = "50px ARIAL";
-        ctx.fillText(gameTitleText, canvas.width / 2 - ctx.measureText(gameTitleText).width / 2, canvas.height / 2 + 25);
+        ctx.font = "72px ARIAL"
+        ctx.fillText(gameTitleText, canvas.width / 2 - ctx.measureText(gameTitleText).width / 2, canvas.height / 2 + 26);
 
-         // subtitle
-        ctx.fillStyle = 'red';
+        // subtitle
+        const startGameText = 'Press "S" to start the game.';
+        ctx.fillStyle = 'white';
         ctx.font = "25px ARIAL";
         ctx.fillText(startGameText, canvas.width / 2 - ctx.measureText(startGameText).width / 2,  canvas.height / 2 + 60);
-        ctx.fillStyle = 'white';
-        ctx.fillText(escapeGameText, canvas.width / 2 - ctx.measureText(escapeGameText).width / 2, canvas.height - 20);
+        const escapeGameText = 'Press "ESC" to go to the main menu again.'
+        ctx.font = "20px ARIAL";
+        ctx.fillText(escapeGameText, canvas.width / 2 - ctx.measureText(escapeGameText).width / 2, canvas.height - 10);
 
         // copyright
-         ctx.fillStyle = '#2c79ff';
-         ctx.font = "13px ARIAL";
-         ctx.fillText(copyrightText, canvas.width - ctx.measureText(copyrightText).width - 10, canvas.height - 13);
+        const copyrightText = '©2023 by HATBE';
+        ctx.fillStyle = '#2c79ff';
+        ctx.font = "11px ARIAL";
+        ctx.fillText(copyrightText, canvas.width - ctx.measureText(copyrightText).width - 10, canvas.height - 10);
     }
 
-    keyboardListeners(keysPressed) {
+    keyboardEvents(keysPressed) {
         // change gamestate to inGame
         if(keysPressed['s']) {
             this.getGameStateManager().switchGameState(this.getGameStateManager().gameStates.inGame);
@@ -497,12 +525,11 @@ class InGameState extends GameState {
     #player;
     #enemy;
 
-    #testX = 400;
-    #testY = 500;
-
     start() {
         this.#player = new Player((canvas.width / 2) - (20 / 2), (canvas.height / 2) - (20 / 2), 20, 20, 20, 5, 'red', 'User');
         this.#enemy = new Enemy(200, 200, 20, 20, 10, 2, 'green', 'Enemy');
+
+        
     }
 
     stop() {
@@ -513,26 +540,28 @@ class InGameState extends GameState {
         const distancePlayerEnemy = this.#enemy.getDistanceFromEntity(this.#player);
         const playerAndEnemyIntersect = Util.doEntitiesIntersect(this.#player, this.#enemy);
 
-        this.#enemy.tick();
         this.#player.tick();
 
         if(!playerAndEnemyIntersect && distancePlayerEnemy <= 300) {
+            this.#enemy.tick();
             this.#enemy.followEntity(this.#player)
         }
 
         if(playerAndEnemyIntersect) {
-            this.#player.setFreezed(true);
-            this.getGameStateManager().switchGameState(this.getGameStateManager().gameStates.gameOver);
+            this.#player.removeHealth(0.5)
         }
     }
 
     draw() {
         const distancePlayerEnemy = this.#enemy.getDistanceFromEntity(this.#player);
-
-        this.#enemy.draw();
+        const playerAndEnemyIntersect = Util.doEntitiesIntersect(this.#player, this.#enemy);
         this.#player.draw();
 
-        if(Util.doEntitiesIntersect(this.#player, this.#enemy)) {
+        if(!playerAndEnemyIntersect && distancePlayerEnemy <= 300) {
+            this.#enemy.draw();
+        }
+
+        if(playerAndEnemyIntersect) {
             ctx.fillStyle = 'red';
             ctx.font = "20px ARIAL";
             ctx.fillText(`Intersects`, 500, 350);
@@ -550,9 +579,15 @@ class InGameState extends GameState {
         ctx.moveTo(this.#enemy.getX() + this.#enemy.getWidth() / 2, this.#enemy.getY() + this.#enemy.getHeight() / 2);
         ctx.lineTo(this.#player.getX() + this.#player.getWidth() / 2, this.#player.getY() + this.#player.getHeight() / 2);
         ctx.stroke();
+
+
+        // draw Health
+        ctx.fillStyle = 'red';
+        ctx.font = "20px ARIAL";
+        ctx.fillText(this.#player.getHealth(), 0, 20);
     }
 
-    keyboardListeners(keysPressed) {
+    keyboardEvents(keysPressed) {
         // change gamestate to menu
         if(keysPressed['Escape']) {
             this.getGameStateManager().switchGameState(this.getGameStateManager().gameStates.menu);
@@ -576,12 +611,12 @@ class GameOverState extends GameState {
 
     draw() {
         ctx.fillStyle = 'red';
-        ctx.font = '50px Arial';
+        ctx.font = '72px Arial';
         const gameOverText = 'Game Over';
-        ctx.fillText(gameOverText, canvas.width / 2 - ctx.measureText(gameOverText).width / 2, canvas.height / 2 + 25);
+        ctx.fillText(gameOverText, canvas.width / 2 - ctx.measureText(gameOverText).width / 2, canvas.height / 2 + 26);
     }
 
-    keyboardListeners(keysPressed) {
+    keyboardEvents(keysPressed) {
         // change gamestate to menu
         if(keysPressed['Escape']) {
             this.getGameStateManager().switchGameState(this.getGameStateManager().gameStates.menu);
