@@ -31,11 +31,6 @@ let currentNumber = 0;
 
 function init() {
     hideAllSegments()
-    
-    inputAEl.checked = false;
-    inputBEl.checked = false;
-    inputCEl.checked = false;
-    inputDEl.checked = false;
 
     updateUi();
 }
@@ -58,37 +53,37 @@ function updateUi() {
     hideAllSegments();
     
     // segment A
-    if(a || c || b && d || !b && !d) { 
+    if(a && !b && !c || !a && b && d || !b && !d || a && !d || !a && c || b && c) { 
         segmentAEl.hidden = false;
     }
 
     // segment B
-    if(!b || !c && !d || c && d) { 
+    if(!a && !c && !d || a && !c && d || !a && c && d || !b && !d || !a && !b) { 
         segmentBEl.hidden = false;
     }
 
     // segment C
-    if(b || !c || d) { 
+    if(!a && !c || a && !b || !a && b || !c && d || !a && d) { 
         segmentCEl.hidden = false;
     }
 
     // segment D
-    if(a || !b && !d || !b && c || c && !d || b && !c && d) { 
+    if(!a && !b && !d || !b && c && d || b && c && !d || b && !c && d || a && !c) { 
         segmentDEl.hidden = false;
     }
 
     // segment E
-    if(!b && !d || c && !d) { 
+    if(c && !d || a && c || a && b || !b && !d) { 
         segmentEEl.hidden = false;
     }
 
     // segment F
-    if(a || b && !c || b && !d || !c && !d) { 
+    if(!a && b && !c || !c && !d || a && !b || b && !d || a && c) { 
         segmentFEl.hidden = false;
     }
 
     // segment G
-    if(a || b && !c || !b && c || c && !d) { 
+    if(!a && b && !c || a && !b || c && !d || !b && c || a && d) { 
         segmentGEl.hidden = false;
     }
 }
@@ -99,17 +94,6 @@ init();
 controlsEl.addEventListener('click', (e) => {
     if (!e.target.classList.contains('input')) {
         return;
-    }
-
-    // if 8 (A) is checked, only allow to add 1 (D), else there will be more than 9 and this is not allowed
-    if(inputAEl.checked) {
-        inputBEl.checked = false;
-        inputCEl.checked = false;
-        inputBEl.disabled = true;
-        inputCEl.disabled = true;
-    } else {
-        inputBEl.disabled = false;
-        inputCEl.disabled = false;
     }
 
     a = inputAEl.checked;
