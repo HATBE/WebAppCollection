@@ -1,0 +1,19 @@
+#countdown {
+    display: flex;
+    margin: 10px;
+}
+
+#hours, #minutes, #seconds, #milliseconds {
+    background-color: black;
+    color: white;
+    border-radius: 4px;
+    padding: 10px;
+    margin-top: 10px;
+
+}
+
+.spacer {
+    margin: 4px;
+    margin-top: 10px;
+    padding-top: 10px;
+}

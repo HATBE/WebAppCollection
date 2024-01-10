@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>7-segment-display</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    
+    <div>
+        <div id="controls">
+            <form>
+                <div>
+                    <label>Dec: </label>
+                    <label>Power: </label>
+                    <label>&nbsp;</label>
+                    <label>Bin:</label>
+                </div>
+                <div>
+                    <label for="a">8</label>
+                    <label for="a">2³</label>
+                    <input class="input" type="checkbox" id="a">
+                    <label id="a-label">0</label>
+                </div>
+                <div>
+                    <label for="b">4</label>
+                    <label for="b">2²</label>
+                    <input class="input" type="checkbox" id="b">
+                    <label id="b-label">0</label>
+                </div>
+                <div>
+                    <label for="c">2</label>
+                    <label for="c">2¹</label>
+                    <input class="input" type="checkbox" id="c">
+                    <label id="c-label">0</label>
+                </div>
+                <div>
+                    <label for="d">1</label>
+                    <label for="d">2⁰</label>
+                    <input class="input" type="checkbox" id="d">
+                    <label id="d-label">0</label>
+                </div>
+
+            </form>
+        </div>
+        <div class="spacing">
+            Current Number: <span id="current-number"></span>
+        </div>
+        <div id="seven-segment-display">
+            <div class="segment" id="a" hidden></div>
+            <div class="segment" id="b" hidden></div>
+            <div class="segment" id="c" hidden></div>
+            <div class="segment" id="d" hidden></div>
+            <div class="segment" id="e" hidden></div>
+            <div class="segment" id="f" hidden></div>
+            <div class="segment" id="g" hidden></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

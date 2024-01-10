@@ -414,6 +414,14 @@ class Player extends Entity {
 }
 
 class Enemy extends Entity {
+    #attackCooldown;
+
+    constructor(x = 0,y = 0, width = 10, height = 10, maxHealth = 20, speed = 2, color = 'red', name = '', attackCooldown = 1000) {
+        super(x, y, width, height, maxHealth, speed, color, name);
+
+        this.#attackCooldown = attackCooldown;
+    }
+
     tick() {
 
     }
@@ -422,6 +430,11 @@ class Enemy extends Entity {
         this._drawSelf();
         this._drawNameTag();
     }
+
+    attackEntiy(targetEntity) {
+
+    }
+ 
 }
 
 // ============================
@@ -527,7 +540,7 @@ class InGameState extends GameState {
 
     start() {
         this.#player = new Player((canvas.width / 2) - (20 / 2), (canvas.height / 2) - (20 / 2), 20, 20, 20, 5, 'red', 'User');
-        this.#enemy = new Enemy(200, 200, 20, 20, 10, 2, 'green', 'Enemy');
+        this.#enemy = new Enemy(200, 200, 20, 20, 10, 2, 'green', 'Enemy', 1000);
 
         
     }

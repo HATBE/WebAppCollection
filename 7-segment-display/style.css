@@ -1,0 +1,81 @@
+:root {
+    --segment-length: 100px;
+    --segment-spacer: 10px;
+}
+
+body {
+    background-color: black;
+    color: white;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.spacing {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+#controls form {
+    display: flex;
+}
+
+#controls form div > input, label  {
+    display: block;
+    text-align: center;
+}
+
+#controls form div:first-child > label  {
+    display: block;
+    text-align: left;
+    margin-right: 10px;
+}
+
+#seven-segment-display {
+    position: relative;
+}
+
+#seven-segment-display .segment {
+    background-color: yellow;
+    height: 10px;
+    width: 10px;
+    position: absolute;
+    border-radius: 10px;
+}
+
+#seven-segment-display #a {
+    width: var(--segment-length);
+    left: var(--segment-spacer)
+}
+
+#seven-segment-display #b {
+    height: var(--segment-length);
+    top: var(--segment-spacer);
+    left: calc(var(--segment-length) + var(--segment-spacer));
+}
+
+#seven-segment-display #c {
+    height: var(--segment-length);
+    top: calc(var(--segment-length) + var(--segment-spacer) * 2);
+    left: calc(var(--segment-length) + var(--segment-spacer));
+}
+
+#seven-segment-display #d {
+    top: calc(var(--segment-length) * 2 + var(--segment-spacer) * 2);
+    left: var(--segment-spacer);
+    width: var(--segment-length);
+}
+
+#seven-segment-display #e {
+    top: calc(var(--segment-length) + var(--segment-spacer) * 2);
+    height: var(--segment-length);
+}
+
+#seven-segment-display #f {
+    top: var(--segment-spacer);
+    height: var(--segment-length);
+}
+
+#seven-segment-display #g {
+    top: calc(var(--segment-length) + var(--segment-spacer));
+    left: var(--segment-spacer);
+    width: var(--segment-length);
+}

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Web Countdown</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        
+        <div>
+            <div id="countdown">
+                <div id="hours">0</div>
+                <div class="spacer">:</div>
+                <div id="minutes">0</div>
+                <div class="spacer">:</div>
+                <div id="seconds">0</div>
+                <div class="spacer">.</div>
+                <div id="milliseconds">0</div>
+            </div>
+            <div id="controls-line">
+                <input type="text" id="time-input">
+                <select id="time-span-select">
+                    <option value="hours">Hours</option>
+                    <option value="minutes">Minutes</option>
+                    <option value="seconds">Seconds</option>
+                </select>
+                <button id="start-btn">
+                    Start
+                </button>
+                <button id="stop-btn">
+                    Stop
+                </button>
+            </div>
+        </div>
+
+        <script src="./script.js"></script>
+    </body>
+</html>

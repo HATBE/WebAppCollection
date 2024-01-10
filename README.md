@@ -6,4 +6,5 @@ Some examples:
 - A Tic Tac Toe Game for the JS console
 - ...
 
-Have a look! You can open the folders and see screenshots of the project.
+Have a look! You can open the folders and see screenshots of the project. \
+You can find links to all projects in the root index.html file
