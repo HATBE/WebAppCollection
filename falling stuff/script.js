@@ -6,6 +6,8 @@ canvas.height = 480;
 
 keysPressed = {};
 
+gameover = false;
+
 player = {
     speed: 2.5,
     height: 20,
@@ -14,10 +16,7 @@ player = {
     y: 0,
 }
 
-stones = [
-    {x: 60, y: 0, speed: 1},
-    {x: 200, y: 0, speed: 2}
-];
+stones = [];
 
 function doRectsIntersect(rect1X, rect1Y, rect1Height, rect1Width, rect2X, rect2Y, rect2Height, rect2Width) {
     // calculate the right, left, top, and bottom coordinates of each rect
@@ -40,6 +39,18 @@ function doRectsIntersect(rect1X, rect1Y, rect1Height, rect1Width, rect2X, rect2
     return true;
 }
 
+function gameOver() {
+    gameover = true;
+}
+
+function createRandomStone() {
+    stones.push({
+        x: Math.floor(Math.random() * canvas.width) + 1,
+        y: 0,
+        speed: Math.floor(Math.random() * 2) + 1
+    })
+}
+
 function drawStones() {
     if(!stones) {return;}
 
@@ -52,16 +63,19 @@ function drawStones() {
 function tickStones() {
     if(!stones) {return;}
 
-    stones.forEach((stone) => {
+    console.log(stones)
+
+    stones.forEach((stone, idx) => {
         stone.y += stone.speed;
 
         if(doRectsIntersect(stone.x, stone.y, 10 , 10, player.x, player.y, player.width, player.height)) {
-            console.log('end');
-            return;
+            gameOver();
+        }
+
+        if(stone.y > canvas.height) {
+            stones.pop(idx)
         }
     });
-
-    
 }
 
 function drawPlayer() {
@@ -92,12 +106,25 @@ function playerController() {
 }
 
 function tick() {
-   playerController();
-   tickStones();
+    if(gameover) {
+        // TODO: GAME OVER
+        return;
+    }
+
+    playerController();
+    tickStones();
 }
 
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if(gameover) {
+        ctx.fillStyle = 'red';
+        ctx.font = '72px Arial';
+        const gameOverText = 'Game Over';
+        ctx.fillText(gameOverText, canvas.width / 2 - ctx.measureText(gameOverText).width / 2, canvas.height / 2 + 26);
+        return;
+    }
+
     drawPlayer();
     drawStones();
 }
@@ -126,6 +153,10 @@ function init() {
     keyboardListener();
 
     window.requestAnimationFrame((timeStamp) => {gameLoop(timeStamp)});
+
+    for(let i = 0; i < 10; i++) {
+        createRandomStone();
+    }
 }
 
 init();
