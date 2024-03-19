@@ -1,4 +1,5 @@
 // TODO: handleX() -> drawX and tickX, better performance, less loops!!
+// TODO: WAVE SYSTEM
 
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
@@ -23,8 +24,8 @@ let misslieDelayCounter = 0;
 
 let player = {
     speed: 2.5,
-    height: 20,
-    width: 20,
+    height: 25,
+    width: 35,
     x: 0,
     y: 0,
 }
@@ -69,8 +70,8 @@ function createRandomStone() {
         x: Math.floor(Math.random() * (canvas.width)) + 1,
         y: 0,
         speed: Math.round(((Math.random() * 2) + 1) * 10) / 10,
-        width: 35,
-        height: 35,
+        width: 40,
+        height: 40,
     });
 }
 
@@ -246,7 +247,7 @@ function keyboardListener() {
 
 function init() {
     // set player to center bottom
-    player.y = canvas.height - player.height; 
+    player.y = canvas.height - player.height - 15; // -15 for floating effect
     player.x = (canvas.width / 2) - (player.width / 2); 
 
     keyboardListener();
