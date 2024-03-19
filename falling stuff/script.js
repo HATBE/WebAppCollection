@@ -32,7 +32,14 @@ let player = {
 let stones = [];
 let missiles = [];
 
-function doRectsIntersect(rect1X, rect1Y, rect1Height, rect1Width, rect2X, rect2Y, rect2Height, rect2Width) {
+const backgroundImage = new Image();
+const stoneImage = new Image();
+const playerImage = new Image();
+backgroundImage.src = "space.jpg";
+stoneImage.src = "stone.png";
+playerImage.src = "ufo.png";
+
+function doRectsIntersect(rect1X, rect1Y, rect1Width, rect1Height, rect2X, rect2Y, rect2Width, rect2Height) {
     // calculate the right, left, top, and bottom coordinates of each rect
     const rect1Right = rect1X + rect1Width - 1;
     const rect1Bottom = rect1Y + rect1Height - 1;
@@ -59,9 +66,11 @@ function gameOver() {
 
 function createRandomStone() {
     stones.push({
-        x: Math.floor(Math.random() * canvas.width) + 1,
+        x: Math.floor(Math.random() * (canvas.width)) + 1,
         y: 0,
         speed: Math.round(((Math.random() * 2) + 1) * 10) / 10,
+        width: 35,
+        height: 35,
     });
 }
 
@@ -69,7 +78,9 @@ function createMissile() {
     missiles.push({
         x: player.x + (player.width / 2) - 2,
         y: player.y,
-        speed: 2,
+        speed: 10,
+        width: 4,
+        height: 10,
     });
 }
 
@@ -77,8 +88,7 @@ function drawStones() {
     if(!stones) {return;}
 
     stones.forEach((stone) => {
-        ctx.fillStyle = 'black';
-        ctx.fillRect(stone.x, stone.y, 10, 10);
+        ctx.drawImage(stoneImage, stone.x, stone.y, stone.width, stone.height);
     });
 }
 
@@ -88,7 +98,7 @@ function tickStones() {
     stones.forEach((stone, idx) => {
         stone.y += stone.speed;
 
-        if(doRectsIntersect(stone.x, stone.y, 10 , 10, player.x, player.y, player.width, player.height)) {
+        if(doRectsIntersect(stone.x, stone.y, stone.width , stone.height, player.x, player.y, player.width, player.height)) {
             gameOver();
         }
 
@@ -108,7 +118,7 @@ function drawMissile() {
     if(!missiles) {return;}
 
     missiles.forEach((missile) => {
-        ctx.fillStyle = 'green';
+        ctx.fillStyle = 'yellow';
         ctx.fillRect(missile.x, missile.y, 4, 10);
     });
 }
@@ -121,7 +131,7 @@ function tickMissile() {
         missile.y -= missile.speed;
 
         stones.forEach((stone, stoneIdx) => {
-            if(doRectsIntersect(stone.x, stone.y, 10 , 10, missile.x, missile.y, 4, 10)) {
+            if(doRectsIntersect(stone.x, stone.y, stone.width, stone.height, missile.x, missile.y, missile.width, missile.height)) {
                 stones.splice(stoneIdx, 1);
                 missiles.splice(missileIdx, 1)
             }
@@ -138,8 +148,8 @@ function tickMissile() {
 }
 
 function drawPlayer() {
-    ctx.fillStyle = 'red';
-    ctx.fillRect(player.x, player.y, player.height, player.width);
+    ctx.drawImage(playerImage, player.x, player.y, player.width, player.height);
+
 }
 
 function playerController() {
@@ -185,9 +195,11 @@ function draw() {
         return drawGameOver();
     }
 
+    ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+
     ctx.font = "20px ARIAL"
-    ctx.fillStyle = '#2c79ff';
-    ctx.fillText(`MISSILE COUNTER: ${(misslieDelayCounter / 60).toFixed(1)}`, 0, 16);
+    ctx.fillStyle = '#fff';
+    ctx.fillText(`MC: ${(misslieDelayCounter / 60).toFixed(1)}`, 0, 16);
 
     drawMissile();
     drawPlayer();
