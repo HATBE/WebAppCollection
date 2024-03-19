@@ -4,14 +4,20 @@ const ctx = canvas.getContext('2d');
 canvas.width = 720;
 canvas.height = 480;
 
+const stoneSpawnDelay = 60; // in frames (60 = approx every sec.)
+const missileSpawnDelay = 20; // in frames (60 = approx every sec.)
+
+const targetFPS = 60;
+const frameDelay = 1000 / targetFPS;
 let oldTimeStamp = 0;
-let targetFPS = 60;
-let frameDelay = 1000 / targetFPS;
 let currentFPS;
 
 let keysPressed = {};
 
 let gameover = false;
+
+let stoneDelayCounter = 0;
+let misslieDelayCounter = 0;
 
 let player = {
     speed: 2.5,
@@ -22,6 +28,7 @@ let player = {
 }
 
 let stones = [];
+let missiles = [];
 
 function doRectsIntersect(rect1X, rect1Y, rect1Height, rect1Width, rect2X, rect2Y, rect2Height, rect2Width) {
     // calculate the right, left, top, and bottom coordinates of each rect
@@ -56,6 +63,14 @@ function createRandomStone() {
     });
 }
 
+function createMissile() {
+    missiles.push({
+        x: player.x + 5 + 1.5,
+        y: player.y,
+        speed: 2,
+    });
+}
+
 function drawStones() {
     if(!stones) {return;}
 
@@ -71,16 +86,48 @@ function tickStones() {
     stones.forEach((stone, idx) => {
         stone.y += stone.speed;
 
-        if(doRectsIntersect(stone.x, stone.y, 10 , 10, player.x, player.y, player.width, player.height)) {
+        /*if(doRectsIntersect(stone.x, stone.y, 10 , 10, player.x, player.y, player.width, player.height)) {
             gameOver();
-        }
+        }*/
 
         if(stone.y > canvas.height) {
             stones.splice(idx, 1);
         }
     });
 
-    createRandomStone(); // TODO: Timer
+    stoneDelayCounter--;
+    if(stoneDelayCounter <= 0) {
+        stoneDelayCounter = stoneSpawnDelay;
+        createRandomStone(); // TODO: Timer
+    }
+}
+
+function drawMissile() {
+    if(!missiles) {return;}
+
+    missiles.forEach((missile) => {
+        ctx.fillStyle = 'green';
+        ctx.fillRect(missile.x, missile.y, 3, 10);
+    });
+}
+
+function tickMissile() {
+    // TODO:
+    if(!missiles) {return;}
+
+    missiles.forEach((missile, idx) => {
+        missile.y -= missile.speed;
+
+        /*TODO: loop over stones an missiles, performance, wtf: if(doRectsIntersect(missile.x, missile.y, 3 , 10, player.x, player.y, player.width, player.height)) {
+            deadStone();
+        }*/
+
+        if(missile.y <= 0) {
+            missiles.splice(idx, 1);
+        }
+    });
+
+    misslieDelayCounter--;
 }
 
 function drawPlayer() {
@@ -106,7 +153,10 @@ function playerController() {
     }
 
     if(keysPressed['w']) {
-        console.log("shoot")
+        if(misslieDelayCounter <= 0) {
+            misslieDelayCounter = missileSpawnDelay;
+            createMissile();
+        }
     }
 }
 
@@ -117,6 +167,7 @@ function tick() {
     }
 
     playerController();
+    tickMissile();
     tickStones();
 }
 
@@ -126,6 +177,7 @@ function draw() {
         return drawGameOver();
     }
 
+    drawMissile();
     drawPlayer();
     drawStones();
 }
