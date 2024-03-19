@@ -1,3 +1,5 @@
+// TODO: handleX() -> drawX and tickX, better performance, less loops!!
+
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
@@ -65,7 +67,7 @@ function createRandomStone() {
 
 function createMissile() {
     missiles.push({
-        x: player.x + 5 + 1.5,
+        x: player.x + (player.width / 2) - 2,
         y: player.y,
         speed: 2,
     });
@@ -86,9 +88,9 @@ function tickStones() {
     stones.forEach((stone, idx) => {
         stone.y += stone.speed;
 
-        /*if(doRectsIntersect(stone.x, stone.y, 10 , 10, player.x, player.y, player.width, player.height)) {
+        if(doRectsIntersect(stone.x, stone.y, 10 , 10, player.x, player.y, player.width, player.height)) {
             gameOver();
-        }*/
+        }
 
         if(stone.y > canvas.height) {
             stones.splice(idx, 1);
@@ -107,7 +109,7 @@ function drawMissile() {
 
     missiles.forEach((missile) => {
         ctx.fillStyle = 'green';
-        ctx.fillRect(missile.x, missile.y, 3, 10);
+        ctx.fillRect(missile.x, missile.y, 4, 10);
     });
 }
 
@@ -115,19 +117,24 @@ function tickMissile() {
     // TODO:
     if(!missiles) {return;}
 
-    missiles.forEach((missile, idx) => {
+    missiles.forEach((missile, missileIdx) => {
         missile.y -= missile.speed;
 
-        /*TODO: loop over stones an missiles, performance, wtf: if(doRectsIntersect(missile.x, missile.y, 3 , 10, player.x, player.y, player.width, player.height)) {
-            deadStone();
-        }*/
+        stones.forEach((stone, stoneIdx) => {
+            if(doRectsIntersect(stone.x, stone.y, 10 , 10, missile.x, missile.y, 4, 10)) {
+                stones.splice(stoneIdx, 1);
+                missiles.splice(missileIdx, 1)
+            }
+        });
 
         if(missile.y <= 0) {
-            missiles.splice(idx, 1);
+            missiles.splice(missileIdx, 1);
         }
     });
 
-    misslieDelayCounter--;
+    if(misslieDelayCounter > 0) {
+        misslieDelayCounter--;
+    }
 }
 
 function drawPlayer() {
@@ -173,9 +180,14 @@ function tick() {
 
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
     if(gameover) {
         return drawGameOver();
     }
+
+    ctx.font = "20px ARIAL"
+    ctx.fillStyle = '#2c79ff';
+    ctx.fillText(`MISSILE COUNTER: ${(misslieDelayCounter / 60).toFixed(1)}`, 0, 16);
 
     drawMissile();
     drawPlayer();
