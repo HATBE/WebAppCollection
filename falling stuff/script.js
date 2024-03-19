@@ -4,11 +4,16 @@ const ctx = canvas.getContext('2d');
 canvas.width = 720;
 canvas.height = 480;
 
-keysPressed = {};
+let oldTimeStamp = 0;
+let targetFPS = 60;
+let frameDelay = 1000 / targetFPS;
+let currentFPS;
 
-gameover = false;
+let keysPressed = {};
 
-player = {
+let gameover = false;
+
+let player = {
     speed: 2.5,
     height: 20,
     width: 20,
@@ -16,7 +21,7 @@ player = {
     y: 0,
 }
 
-stones = [];
+let stones = [];
 
 function doRectsIntersect(rect1X, rect1Y, rect1Height, rect1Width, rect2X, rect2Y, rect2Height, rect2Width) {
     // calculate the right, left, top, and bottom coordinates of each rect
@@ -47,8 +52,8 @@ function createRandomStone() {
     stones.push({
         x: Math.floor(Math.random() * canvas.width) + 1,
         y: 0,
-        speed: Math.floor(Math.random() * 2) + 1
-    })
+        speed: Math.round(((Math.random() * 2) + 1) * 10) / 10,
+    });
 }
 
 function drawStones() {
@@ -63,8 +68,6 @@ function drawStones() {
 function tickStones() {
     if(!stones) {return;}
 
-    console.log(stones)
-
     stones.forEach((stone, idx) => {
         stone.y += stone.speed;
 
@@ -73,9 +76,11 @@ function tickStones() {
         }
 
         if(stone.y > canvas.height) {
-            stones.pop(idx)
+            stones.splice(idx, 1);
         }
     });
+
+    createRandomStone(); // TODO: Timer
 }
 
 function drawPlayer() {
@@ -101,7 +106,7 @@ function playerController() {
     }
 
     if(keysPressed['w']) {
-        // shoot missile
+        console.log("shoot")
     }
 }
 
@@ -118,21 +123,39 @@ function tick() {
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     if(gameover) {
-        ctx.fillStyle = 'red';
-        ctx.font = '72px Arial';
-        const gameOverText = 'Game Over';
-        ctx.fillText(gameOverText, canvas.width / 2 - ctx.measureText(gameOverText).width / 2, canvas.height / 2 + 26);
-        return;
+        return drawGameOver();
     }
 
     drawPlayer();
     drawStones();
 }
 
+function drawGameOver() {
+    ctx.fillStyle = 'red';
+    ctx.font = '72px Arial';
+    const gameOverText = 'Game Over';
+    ctx.fillText(gameOverText, canvas.width / 2 - ctx.measureText(gameOverText).width / 2, canvas.height / 2 + 26);
+}
+
 function gameLoop(timeStamp) {
-    tick();
-    draw();
-    
+    // Calculate the number of milliseconds passed since the last frame
+    const elapsed = timeStamp - oldTimeStamp;
+
+    // Check if enough time has passed to meet the target FPS
+    if (elapsed >= frameDelay) {
+        // Update oldTimeStamp
+        oldTimeStamp = timeStamp;
+
+        // Calculate fps
+        currentFPS = Math.round(1000 / elapsed);
+
+        // tick game
+        tick();
+
+        // draw game
+        draw();
+    }
+
     window.requestAnimationFrame((timeStamp) => {gameLoop(timeStamp)});
 }
 
@@ -153,10 +176,6 @@ function init() {
     keyboardListener();
 
     window.requestAnimationFrame((timeStamp) => {gameLoop(timeStamp)});
-
-    for(let i = 0; i < 10; i++) {
-        createRandomStone();
-    }
 }
 
 init();
