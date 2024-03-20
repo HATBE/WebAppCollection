@@ -13,4 +13,5 @@ export class GameState {
     draw(canvas) {throw new Error("Method 'draw()' must be implemented.");}
 
     _tickKeyboard() {throw new Error("Method 'tickKeyboard()' must be implemented.");}
+    mouseClick(event) {throw new Error("Method 'tickKeyboard()' must be implemented.");}
 }

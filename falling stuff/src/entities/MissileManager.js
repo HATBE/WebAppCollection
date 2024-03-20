@@ -14,7 +14,9 @@ export class MissileManager {
     }
 
     tick() {
-        if(!this.#missiles) {return;}
+        if(!this.#missiles) {
+            return;
+        }
 
         this.#missiles.forEach((missile, missileIdx) => {
             missile.tick();
@@ -22,7 +24,7 @@ export class MissileManager {
             this._game.getGameStateManager().getCurrentGameState().getAsteroidManager().getAsteroids().forEach((asteroid, asteroidIdx) => {
                 if(Util.doEntitiesIntersect(missile, asteroid)) {
                     this._game.getGameStateManager().getCurrentGameState().getAsteroidManager().removeAsteroid(asteroid);
-                    this.removeMissile(missile)
+                    this.removeMissile(missile);
                     this._game.getGameStateManager().getCurrentGameState().increesePoints();
                 }
             });
@@ -34,7 +36,9 @@ export class MissileManager {
     }
 
     draw(canvas) {
-        if(!this.#missiles) {return;}
+        if(!this.#missiles) {
+            return;
+        }
 
         this.#missiles.forEach((missile) => {
            missile.draw(canvas);

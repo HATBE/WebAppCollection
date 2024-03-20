@@ -26,4 +26,8 @@ export class GameOverState extends GameState {
             this._game.getGameStateManager().switchGameState(this._game.getGameStateManager().gameStates.menu);
         }
     }
+
+    mouseClick(event) {
+
+    }
 }

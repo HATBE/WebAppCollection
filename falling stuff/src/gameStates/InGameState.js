@@ -47,8 +47,8 @@ export class InGameState extends GameState {
 
     draw(canvas) {
         this.#drawBackground(canvas);
-        this.#player.draw(canvas);
         this.#missileManager.draw(canvas);
+        this.#player.draw(canvas);
         this.#asteroidManager.draw(canvas);
 
         this.#drawUi(canvas);
@@ -118,5 +118,9 @@ export class InGameState extends GameState {
         if(this._game.getGameStateManager().isKeyPressed('Escape')) {
             this._game.getGameStateManager().switchGameState(this._game.getGameStateManager().gameStates.menu);
         }
+    }
+
+    mouseClick(event) {
+
     }
 }

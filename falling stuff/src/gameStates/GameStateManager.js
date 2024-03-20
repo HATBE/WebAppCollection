@@ -18,7 +18,7 @@ export class GameStateManager {
         this.#currentGameState = null;
         this.#keysPressed = {};
         
-        this._tickKeyboard();
+        this.#eventListener();
     }
 
     switchGameState(gameState) {
@@ -33,7 +33,7 @@ export class GameStateManager {
         return this.#currentGameState;
     }
 
-    _tickKeyboard() {
+    #eventListener() {
         document.addEventListener("keydown", (event) => {
             // set the state of the pressed key to true
             this.#keysPressed[event.key] = true;
@@ -47,6 +47,15 @@ export class GameStateManager {
         document.addEventListener("keyup", (event) => {
             // Set the state of the released key to false
             this.#keysPressed[event.key] = false;
+        });
+        document.addEventListener("click", (event) => {
+            if(event.target.id == "canvas") {
+                console.log(event.pageY);
+
+                const clickX = 1;
+                const clickY = 1;
+                this.getCurrentGameState().mouseClick(clickX, clickY);
+            }
         });
     }
 

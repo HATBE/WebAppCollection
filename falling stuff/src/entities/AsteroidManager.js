@@ -14,7 +14,9 @@ export class AsteroidManager {
     }
 
     tick() {
-        if(!this.#asteroids) {return;}
+        if(!this.#asteroids) {
+            return;
+        }
 
         this.#asteroids.forEach((asteroid, asteroidIdx) => {
            asteroid.tick();
@@ -36,7 +38,9 @@ export class AsteroidManager {
     }
 
     draw(canvas) {
-        if(!this.#asteroids) {return;}
+        if(!this.#asteroids) {
+            return;
+        }
 
         this.#asteroids.forEach((asteroid) => {
            asteroid.draw(canvas);

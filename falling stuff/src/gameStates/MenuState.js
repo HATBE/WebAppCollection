@@ -34,10 +34,19 @@ export class MenuState extends GameState {
         canvas.getContext().fillText(copyrightText, canvas.getWidth() - canvas.getContext().measureText(copyrightText).width - 10, canvas.getHeight() - 10);
     }
 
+    #createButton() {
+
+    }
+
     _tickKeyboard() {
         // change gamestate to inGame
         if(this._game.getGameStateManager().isKeyPressed('s') || this._game.getGameStateManager().isKeyPressed('S')) {
             this._game.getGameStateManager().switchGameState(this._game.getGameStateManager().gameStates.inGame);
         }
+    }
+
+    mouseClick(event) {
+        //alert('klick');
+        //console.log(event.pageX); // TODO: somehow zero out coords from top of canvas
     }
 }
