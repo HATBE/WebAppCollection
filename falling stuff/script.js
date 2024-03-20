@@ -116,6 +116,10 @@ class MissileManager {
         this.#missiles.splice(this.#missiles.indexOf(missile), 1);
     }
 
+    removeAllMissiles() {
+        this.#missiles = [];
+    }
+
     getMissileDelayCounter() {
         return this.#missileDelayCounter;
     }
@@ -138,8 +142,16 @@ class StoneManager {
 
         this.#stones.forEach((stone, stoneIdx) => {
            stone.tick();
+        
+            // check if stones collide with player
+            if(Util.doEntitiesIntersect(stone, this._game.getGameStateManager().getCurrentGameState().getPlayer())) {
+                this._game.getGameStateManager().getCurrentGameState().getStoneManager().removeStone(this);
+                this._game.getGameStateManager().getCurrentGameState().gameOver();
+                return;
+            }
         });
 
+        // create new Stone
         this.#stoneDelayCounter--;
         if(this.#stoneDelayCounter <= 0) {
             this.#stoneDelayCounter = this.#stoneSpawnDelay;
@@ -166,6 +178,10 @@ class StoneManager {
 
     removeStone(stone) {
         this.#stones.splice(this.#stones.indexOf(stone), 1);
+    }
+
+    removeAllStones() {
+        this.#stones = [];
     }
 
     getStones() {
@@ -289,17 +305,6 @@ class Stone extends Entity {
 
     tick() {
         this.getLocation().setY(this.getLocation().getY() + this.getSpeed());
-        // if gamestate switches before all stones are checked, then game crashes (because player is not an existing function) // TODO: provide copy of player position
-        if(!(this._game.getGameStateManager().getCurrentGameState() instanceof InGameState)) {
-            return;
-        }
-
-        // check if stones collide with player
-        if(Util.doEntitiesIntersect(this, this._game.getGameStateManager().getCurrentGameState().getPlayer())) {
-            this._game.getGameStateManager().getCurrentGameState().getStoneManager().removeStone(this);
-            this._game.getGameStateManager().getCurrentGameState().gameOver();
-            return;
-        }
 
         if(this.getLocation().getY() > this._game.getCanvas().getHeight()) {
             this._game.getGameStateManager().getCurrentGameState().getStoneManager().removeStone(this);
@@ -429,7 +434,8 @@ class InGameState extends GameState {
     }
 
     stop() {
-
+        this.getMissileManager().removeAllMissiles();
+        this.getStoneManager().removeAllStones();
     }
 
     tick() {
