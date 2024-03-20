@@ -1,5 +1,5 @@
-import { Location } from '../Location.js';
-import { Sprite } from '../Sprite.js';
+import { Location } from '../util/Location.js';
+import { Sprite } from '../gfx/Sprite.js';
 
 export class Entity {
     _game;

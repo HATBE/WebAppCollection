@@ -1,5 +1,5 @@
 import { GameState } from './GameState.js';
-import { Sprite } from '../Sprite.js';
+import { Sprite } from '../gfx/Sprite.js';
 import { Player } from '../entities/Player.js';
 import { MissileManager } from '../entities/MissileManager.js';
 import { AsteroidManager } from '../entities/AsteroidManager.js';

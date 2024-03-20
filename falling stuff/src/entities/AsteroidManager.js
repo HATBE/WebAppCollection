@@ -1,5 +1,5 @@
 import { Asteroid } from '../entities/Asteroid.js';
-import { Util } from '../Util.js';
+import { Util } from '../util/Util.js';
 
 export class AsteroidManager {
     _game;

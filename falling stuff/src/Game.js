@@ -1,4 +1,4 @@
-import { Canvas } from './Canvas.js';
+import { Canvas } from './gfx/Canvas.js';
 import { GameStateManager } from './gameStates/GameStateManager.js';
 
 export class Game {
