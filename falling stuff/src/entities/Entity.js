@@ -1,7 +1,7 @@
-import { Location } from '../util/Location.js';
-import { Sprite } from '../gfx/Sprite.js';
+import Location from '../util/Location.js';
+import Sprite from '../gfx/Sprite.js';
 
-export class Entity {
+export default class Entity {
     _game;
     #location;
     #width;

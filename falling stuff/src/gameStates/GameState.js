@@ -1,4 +1,4 @@
-export class GameState {
+export default class GameState {
     _game;
     constructor(game) {
         if (this.constructor === GameState) {throw new Error("Abstract classes can't be instantiated.")};

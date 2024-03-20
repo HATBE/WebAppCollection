@@ -1,4 +1,4 @@
-export class Util {
+export default class Util {
     static doBoxesIntersect(box1X, box1Y, box1Height, box1Width, box2X, box2Y, box2Height, box2Width) {
         // calculate the right, left, top, and bottom coordinates of each box
         const box1Right = box1X + box1Width - 1;

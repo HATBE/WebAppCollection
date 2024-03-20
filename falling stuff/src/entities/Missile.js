@@ -1,6 +1,6 @@
-import { Entity } from './Entity.js'
+import Entity from './Entity.js';
 
-export class Missile extends Entity {
+export default class Missile extends Entity {
     constructor(game, x, y) {
         super(game, 'missile.png', x, y, 15, 37, 15);
         this.getLocation().setX(x - (this.getWidth() / 2)); // correct x position, minus half of missile width

@@ -1,7 +1,7 @@
-import { Asteroid } from '../entities/Asteroid.js';
-import { Util } from '../util/Util.js';
+import Asteroid from '../entities/Asteroid.js';
+import Util from '../util/Util.js';
 
-export class AsteroidManager {
+export default class AsteroidManager {
     _game;
 
     #asteroidSpawnDelay = 30; // in frames (60 = approx every sec.)

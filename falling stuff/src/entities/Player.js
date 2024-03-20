@@ -1,6 +1,6 @@
-import { Entity } from './Entity.js'
+import Entity from './Entity.js';
 
-export class Player extends Entity {
+export default class Player extends Entity {
     constructor(game, x, y, width, height, speed) {
         super(game, 'ufo.png', x, y, width, height, speed);
     }

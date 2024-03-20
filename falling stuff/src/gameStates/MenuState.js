@@ -1,6 +1,6 @@
-import { GameState } from './GameState.js';
+import GameState from './GameState.js';
 
-export class MenuState extends GameState {
+export default class MenuState extends GameState {
     start() {
 
     }

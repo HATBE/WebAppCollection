@@ -1,4 +1,4 @@
-import { Game } from './src/Game.js';
+import Game from './src/Game.js';
 
 // TODO: wave system
 // TODO: add hitbox (smaller then entity itself)
@@ -13,6 +13,7 @@ import { Game } from './src/Game.js';
 // TODO: implement brake (serialase state of game )
 // TODO: highscore (safe in local storage)
 // TODO: give score to gameover screen
+// TODO: split draw and tick in different files (split logic)
 
 // initialize game
 const game = new Game(1280, 720, 60);

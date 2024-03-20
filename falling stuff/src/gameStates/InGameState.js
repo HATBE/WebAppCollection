@@ -1,10 +1,10 @@
-import { GameState } from './GameState.js';
-import { Sprite } from '../gfx/Sprite.js';
-import { Player } from '../entities/Player.js';
-import { MissileManager } from '../entities/MissileManager.js';
-import { AsteroidManager } from '../entities/AsteroidManager.js';
+import GameState from './GameState.js';
+import Sprite from '../gfx/Sprite.js';
+import Player from '../entities/Player.js';
+import MissileManager from '../entities/MissileManager.js';
+import AsteroidManager from '../entities/AsteroidManager.js';
 
-export class InGameState extends GameState {
+export default class InGameState extends GameState {
     #player;
     #backgroundImage;
 

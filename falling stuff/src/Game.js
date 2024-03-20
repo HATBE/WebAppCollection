@@ -1,7 +1,7 @@
-import { Canvas } from './gfx/Canvas.js';
-import { GameStateManager } from './gameStates/GameStateManager.js';
+import Canvas from './gfx/Canvas.js';
+import GameStateManager from './gameStates/GameStateManager.js';
 
-export class Game {
+export default class Game {
     #debugMode;
 
     #canvas;

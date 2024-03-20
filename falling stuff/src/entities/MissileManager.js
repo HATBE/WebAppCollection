@@ -1,7 +1,7 @@
-import { Missile } from '../entities/Missile.js';
-import { Util } from '../util/Util.js';
+import Missile from '../entities/Missile.js';
+import Util from '../util/Util.js';
 
-export class MissileManager {
+export default class MissileManager {
     _game;
 
     #missileSpawnDelay = 20; // in frames (60 = approx every sec.)

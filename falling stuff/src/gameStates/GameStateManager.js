@@ -1,8 +1,8 @@
-import { InGameState } from './InGameState.js';
-import { GameOverState } from './GameOverState.js';
-import { MenuState } from './MenuState.js';
+import InGameState from './InGameState.js';
+import GameOverState from './GameOverState.js';
+import MenuState from './MenuState.js';
 
-export class GameStateManager {
+export default class GameStateManager {
     #game;
     #currentGameState;
     #keysPressed;
