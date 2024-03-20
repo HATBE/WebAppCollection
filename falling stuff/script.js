@@ -1,5 +1,9 @@
 // TODO: wave system
 // TODO: add hitbox (smaller then entity itself)
+// TODO: asteroids cant spawn on other asteroid (and cannot speedup into other asteroid, or maybe it can and one of them gets destroyed or they split into smnaller ones????)
+// TODO: implement health system, for asteroids and for player
+// TODO: load images on gamestate initialisation !!
+// TODO: ui manager (for the text, with buffer and renders that left and right aligned, usw)
 
 class Util {
     static doBoxesIntersect(box1X, box1Y, box1Height, box1Width, box2X, box2Y, box2Height, box2Width) {
@@ -83,9 +87,9 @@ class MissileManager {
         this.#missiles.forEach((missile, missileIdx) => {
             missile.tick();
 
-            this._game.getGameStateManager().getCurrentGameState().getStoneManager().getStones().forEach((stone, stoneIdx) => {
-                if(Util.doEntitiesIntersect(missile, stone)) {
-                    this._game.getGameStateManager().getCurrentGameState().getStoneManager().removeStone(stone);
+            this._game.getGameStateManager().getCurrentGameState().getAsteroidManager().getAsteroids().forEach((asteroid, asteroidIdx) => {
+                if(Util.doEntitiesIntersect(missile, asteroid)) {
+                    this._game.getGameStateManager().getCurrentGameState().getAsteroidManager().removeAsteroid(asteroid);
                     this.removeMissile(missile)
                     this._game.getGameStateManager().getCurrentGameState().increesePoints();
                 }
@@ -125,67 +129,70 @@ class MissileManager {
     }
 }
 
-class StoneManager {
+class AsteroidManager {
     _game;
 
-    #stoneSpawnDelay = 30; // in frames (60 = approx every sec.)
+    #asteroidSpawnDelay = 30; // in frames (60 = approx every sec.)
     
-    #stones = [];
-    #stoneDelayCounter = 0;
+    #asteroids = [];
+    #asteroidDelayCounter = 0;
 
     constructor(game) {
         this._game = game;
     }
 
     tick() {
-        if(!this.#stones) {return;}
+        if(!this.#asteroids) {return;}
 
-        this.#stones.forEach((stone, stoneIdx) => {
-           stone.tick();
+        this.#asteroids.forEach((asteroid, asteroidIdx) => {
+           asteroid.tick();
         
-            // check if stones collide with player
-            if(Util.doEntitiesIntersect(stone, this._game.getGameStateManager().getCurrentGameState().getPlayer())) {
-                this._game.getGameStateManager().getCurrentGameState().getStoneManager().removeStone(this);
+            // check if asteroids collide with player
+            if(Util.doEntitiesIntersect(asteroid, this._game.getGameStateManager().getCurrentGameState().getPlayer())) {
+                this._game.getGameStateManager().getCurrentGameState().getAsteroidManager().removeAsteroid(this);
                 this._game.getGameStateManager().getCurrentGameState().gameOver();
                 return;
             }
         });
 
-        // create new Stone
-        this.#stoneDelayCounter--;
-        if(this.#stoneDelayCounter <= 0) {
-            this.#stoneDelayCounter = this.#stoneSpawnDelay;
-            this.createStone();
+        // create new Asteroid
+        this.#asteroidDelayCounter--;
+        if(this.#asteroidDelayCounter <= 0) {
+            this.#asteroidDelayCounter = this.#asteroidSpawnDelay;
+            this.createAsteroid();
         }
     }
 
     draw(canvas) {
-        if(!this.#stones) {return;}
+        if(!this.#asteroids) {return;}
 
-        this.#stones.forEach((stone) => {
-           stone.draw(canvas);
+        this.#asteroids.forEach((asteroid) => {
+           asteroid.draw(canvas);
         });
     }
 
-    createStone() {
-        this.#stoneDelayCounter = this.#stoneSpawnDelay;
+    createAsteroid() {
+        const asteroidWidth = 80;
+        const asteroidHeight = 80;
 
-        const randomX = Math.floor(Math.random() * (canvas.width)) + 1; // generates a random integer from 1 to canvas.width
+        this.#asteroidDelayCounter = this.#asteroidSpawnDelay;
+
+        const randomX = Math.floor(Math.random() * (this._game.getCanvas().getWidth() - asteroidWidth)) + 1; // generates a random integer from 1 to canvas width minus width of asteroid
         const randomSpeed = Math.round(((Math.random() * 2) + 1) * 10) / 10; // random decimal between 1.0 and 3.0, rounded to 1 decimal place.
 
-        this.#stones.push(new Stone(this._game, randomX, 0, randomSpeed));
+        this.#asteroids.push(new Asteroid(this._game, randomX, 0, asteroidWidth, asteroidHeight, randomSpeed));
     }
 
-    removeStone(stone) {
-        this.#stones.splice(this.#stones.indexOf(stone), 1);
+    removeAsteroid(asteroid) {
+        this.#asteroids.splice(this.#asteroids.indexOf(asteroid), 1);
     }
 
-    removeAllStones() {
-        this.#stones = [];
+    removeAllAsteroids() {
+        this.#asteroids = [];
     }
 
-    getStones() {
-        return this.#stones;
+    getAsteroids() {
+        return this.#asteroids;
     }
 }
 
@@ -198,8 +205,9 @@ class Entity {
     #width;
     #height;
     #speed;
+    #sprite;
 
-    constructor(_game, x = 0,y = 0, width = 10, height = 10, speed = 2) {
+    constructor(_game, spritePath, x = 0,y = 0, width = 10, height = 10, speed = 2) {
         if (this.constructor === Entity) {throw new Error("Abstract classes can't be instantiated.");}
         
         this._game = game;
@@ -207,6 +215,7 @@ class Entity {
         this.#height = height;
         this.#width = width;
         this.#speed = speed;
+        this.#sprite = new Sprite(spritePath, this.getWidth(), this.getHeight());
     }
 
     tick() {throw new Error("Method 'tick()' must be implemented.");}
@@ -232,17 +241,22 @@ class Entity {
         this.#speed = speed;
     }
 
+    getSprite() {
+        return this.#sprite;
+    }
+
     drawDebug(canvas) {
         canvas.drawStroke(this.getLocation().getX(), this.getLocation().getY(), this.getWidth(), this.getHeight(), "red");
+    }
+
+    _drawSelf(canvas) {
+        canvas.getContext().drawImage(this.getSprite(), this.getLocation().getX(), this.getLocation().getY(), this.getWidth(), this.getHeight());
     }
 }
 
 class Player extends Entity {
-    #sprite;
-
     constructor(game, x, y, width, height, speed) {
-        super(game, x, y, width, height, speed);
-        this.#sprite = new Sprite("ufo.png", this.getWidth(), this.getHeight());
+        super(game, 'ufo.png', x, y, width, height, speed);
     }
 
     tick() {
@@ -250,15 +264,11 @@ class Player extends Entity {
     }
 
     draw(canvas) {
-        canvas.getContext().drawImage(this.getSprite(), this.getLocation().getX(), this.getLocation().getY(), this.getWidth(), this.getHeight());
+        this._drawSelf(canvas);
                 
         if(this._game.isDebugMode()) {
             this.drawDebug(canvas);
         }
-    }
-
-    getSprite() {
-        return this.#sprite;
     }
 
     playerController() {
@@ -295,38 +305,31 @@ class Player extends Entity {
     }
 }
 
-class Stone extends Entity {
-    #sprite;
-
-    constructor(game, x, y, speed) {
-        super(game, x, y, 80, 80, speed);
-        this.#sprite = new Sprite("stone.png", this.getWidth(), this.getHeight());
+class Asteroid extends Entity {
+    constructor(game, x, y, width, height, speed) {
+        super(game, 'asteroid.png', x, y, width, height, speed);
     }
 
     tick() {
         this.getLocation().setY(this.getLocation().getY() + this.getSpeed());
 
         if(this.getLocation().getY() > this._game.getCanvas().getHeight()) {
-            this._game.getGameStateManager().getCurrentGameState().getStoneManager().removeStone(this);
+            this._game.getGameStateManager().getCurrentGameState().getAsteroidManager().removeAsteroid(this);
         }
     }
 
     draw(canvas) {
-        canvas.getContext().drawImage(this.getSprite(), this.getLocation().getX(), this.getLocation().getY(), this.getWidth(), this.getHeight());
+        this._drawSelf(canvas);
 
         if(this._game.isDebugMode()) {
             this.drawDebug(canvas);
         }
     }
-
-    getSprite() {
-        return this.#sprite;
-    }
 }
 
 class Missile extends Entity {
     constructor(game, x, y) {
-        super(game, x, y, 8, 20, 15);
+        super(game, 'missile.png', x, y, 15, 37, 15);
         this.getLocation().setX(x - (this.getWidth() / 2)); // correct x position, minus half of missile width
     }
 
@@ -340,8 +343,7 @@ class Missile extends Entity {
     }
 
     draw(canvas) {
-        canvas.getContext().fillStyle = 'yellow';
-        canvas.getContext().fillRect(this.getLocation().getX(), this.getLocation().getY(), this.getWidth(), this.getHeight());
+        this._drawSelf(canvas);
     }
 }
 
@@ -392,7 +394,7 @@ class MenuState extends GameState {
         canvas.getContext().fillText(startGameText, canvas.getWidth() / 2 - canvas.getContext().measureText(startGameText).width / 2,  canvas.getHeight() / 2 + 60);
         const escapeGameText = 'Press "ESC" to go back to the main menu again.'
         canvas.getContext().font = "20px ARIAL";
-        canvas.getContext().fillText(escapeGameText, canvas.width / 2 - canvas.getContext().measureText(escapeGameText).width / 2, canvas.height - 10);
+        canvas.getContext().fillText(escapeGameText, canvas.getWidth() / 2 - canvas.getContext().measureText(escapeGameText).width / 2, canvas.getHeight() - 10);
 
         // copyright
         const copyrightText = '©2024 by HATBE';
@@ -402,7 +404,7 @@ class MenuState extends GameState {
 
     _tickKeyboard() {
         // change gamestate to inGame
-        if(this._game.getGameStateManager().isKeyPressed('s')) {
+        if(this._game.getGameStateManager().isKeyPressed('s') || this._game.getGameStateManager().isKeyPressed('S')) {
             this._game.getGameStateManager().switchGameState(this._game.getGameStateManager().gameStates.inGame);
         }
     }
@@ -415,7 +417,7 @@ class InGameState extends GameState {
     #isGameOver = false;
 
     #missileManager;
-    #stoneManager;
+    #asteroidManager;
 
     #points = 0;
 
@@ -426,7 +428,7 @@ class InGameState extends GameState {
         this.#player = new Player(this._game, 0, 0, 70, 50, 5);
 
         this.#missileManager = new MissileManager(this._game);
-        this.#stoneManager = new StoneManager(this._game);
+        this.#asteroidManager = new AsteroidManager(this._game);
     }
 
     start() {
@@ -435,7 +437,7 @@ class InGameState extends GameState {
 
     stop() {
         this.getMissileManager().removeAllMissiles();
-        this.getStoneManager().removeAllStones();
+        this.getAsteroidManager().removeAllAsteroids();
     }
 
     tick() {
@@ -446,14 +448,14 @@ class InGameState extends GameState {
         this._tickKeyboard();
         this.#player.tick();
         this.#missileManager.tick();
-        this.#stoneManager.tick();
+        this.#asteroidManager.tick();
     }
 
     draw(canvas) {
         this.#drawBackground(canvas);
         this.#player.draw(canvas);
         this.#missileManager.draw(canvas);
-        this.#stoneManager.draw(canvas);
+        this.#asteroidManager.draw(canvas);
 
         this.#drawUi(canvas);
     }
@@ -471,8 +473,8 @@ class InGameState extends GameState {
         return this.#missileManager;
     }
 
-    getStoneManager() {
-        return this.#stoneManager;
+    getAsteroidManager() {
+        return this.#asteroidManager;
     }
 
     getPlayer() {
