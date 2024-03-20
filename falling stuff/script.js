@@ -1,4 +1,3 @@
-// TODO: stone handler
 // TODO: wave system
 // TODO: add hitbox (smaller then entity itself)
 
@@ -82,15 +81,15 @@ class MissileManager {
         if(!this.#missiles) {return;}
 
         this.#missiles.forEach((missile, missileIdx) => {
-           missile.tick();
+            missile.tick();
 
-           this._game.getGameStateManager().getCurrentGameState().getStoneManager().getStones().forEach((stone, stoneIdx) => {
-            if(Util.doEntitiesIntersect(missile, stone)) {
-                this._game.getGameStateManager().getCurrentGameState().getStoneManager().removeStone(stone);
-                this.removeMissile(missile)
-                this._game.getGameStateManager().getCurrentGameState().increesePoints();
-            }
-        });
+            this._game.getGameStateManager().getCurrentGameState().getStoneManager().getStones().forEach((stone, stoneIdx) => {
+                if(Util.doEntitiesIntersect(missile, stone)) {
+                    this._game.getGameStateManager().getCurrentGameState().getStoneManager().removeStone(stone);
+                    this.removeMissile(missile)
+                    this._game.getGameStateManager().getCurrentGameState().increesePoints();
+                }
+            });
         });
 
         if(this.#missileDelayCounter > 0) {
@@ -290,6 +289,11 @@ class Stone extends Entity {
 
     tick() {
         this.getLocation().setY(this.getLocation().getY() + this.getSpeed());
+        // if gamestate switches before all stones are checked, then game crashes (because player is not an existing function) // TODO: provide copy of player position
+        if(!(this._game.getGameStateManager().getCurrentGameState() instanceof InGameState)) {
+            return;
+        }
+
         // check if stones collide with player
         if(Util.doEntitiesIntersect(this, this._game.getGameStateManager().getCurrentGameState().getPlayer())) {
             this._game.getGameStateManager().getCurrentGameState().getStoneManager().removeStone(this);
@@ -501,9 +505,9 @@ class InGameState extends GameState {
     }
 
     #drawDebug(canvas) {
-        canvas.getContext().fillStyle = '#f00';
-        fpsText = `FPS: ${this._game.getCurrentFps()}`;
-        canvas.getContext().fillText(fpsText, canvas.width - canvas.getContext().measureText(fpsText).width, 16);
+        canvas.getContext().fillStyle = '#ff0000';
+        const fpsText = `FPS: ${this._game.getCurrentFps()}`;
+        canvas.getContext().fillText(fpsText, canvas.getWidth() - canvas.getContext().measureText(fpsText).width, 16);
     }
 
     _tickKeyboard() {
@@ -631,7 +635,7 @@ class Game {
         // setup canvas
         this.#canvas.init();
 
-        this.#gameStateManager.switchGameState(this.#gameStateManager.gameStates.inGame);
+        this.#gameStateManager.switchGameState(this.#gameStateManager.gameStates.menu);
 
         // start game loop
         window.requestAnimationFrame((timeStamp) => {this.#loop(timeStamp)});
@@ -707,7 +711,7 @@ class Canvas {
         this.#height = height;
 
         this.#canvas = document.getElementById('canvas');
-        this.#context = canvas.getContext("2d");
+        this.#context = this.#canvas.getContext("2d");
     }
 
     init() {
@@ -744,6 +748,10 @@ class Canvas {
         this.getContext().strokeStyle = color;
         this.getContext().lineWidth = lineWidth;
         this.getContext().strokeRect(x , y, width, height);
+    }
+
+    drawText() {
+
     }
 }
 
