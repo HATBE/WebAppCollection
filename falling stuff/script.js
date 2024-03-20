@@ -1,294 +1,756 @@
-// TODO: handleX() -> drawX and tickX, better performance, less loops!!
-// TODO: WAVE SYSTEM
+// TODO: stone handler
+// TODO: wave system
+// TODO: add hitbox (smaller then entity itself)
 
-let debug = false;
+class Util {
+    static doBoxesIntersect(box1X, box1Y, box1Height, box1Width, box2X, box2Y, box2Height, box2Width) {
+        // calculate the right, left, top, and bottom coordinates of each box
+        const box1Right = box1X + box1Width - 1;
+        const box1Bottom = box1Y + box1Height - 1;
+        const box2Right = box2X + box2Width - 1;
+        const box2Bottom = box2Y + box2Height - 1;
 
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
+        // check if box1 is to the left of box2
+        if (box1Right < box2X || box2Right < box1X) {
+            return false;
+        }
 
-canvas.width = 1280;
-canvas.height = 720;
+        // check if box1 is above box2
+        if (box1Bottom < box2Y || box2Bottom < box1Y) {
+            return false;
+        }
 
-const stoneSpawnDelay = 30; // in frames (60 = approx every sec.)
-const missileSpawnDelay = 20; // in frames (60 = approx every sec.)
-
-const targetFPS = 60;
-const frameDelay = 1000 / targetFPS;
-let oldTimeStamp = 0;
-let currentFPS;
-
-let keysPressed = {};
-
-let gameover = false;
-
-let points = 0;
-let stoneDelayCounter = 0;
-let misslieDelayCounter = 0;
-
-let player = {
-    speed: 5,
-    height: 50,
-    width: 70,
-    x: 0,
-    y: 0,
-}
-
-let stones = [];
-let missiles = [];
-
-const backgroundImage = new Image();
-const stoneImage = new Image();
-const playerImage = new Image();
-backgroundImage.src = "space.jpg";
-stoneImage.src = "stone.png";
-playerImage.src = "ufo.png";
-
-function doRectsIntersect(rect1X, rect1Y, rect1Width, rect1Height, rect2X, rect2Y, rect2Width, rect2Height) {
-    // calculate the right, left, top, and bottom coordinates of each rect
-    const rect1Right = rect1X + rect1Width - 1;
-    const rect1Bottom = rect1Y + rect1Height - 1;
-    const rect2Right = rect2X + rect2Width - 1;
-    const rect2Bottom = rect2Y + rect2Height - 1;
-
-    // check if rect1 is to the left of rect2
-    if (rect1Right < rect2X || rect2Right < rect1X) {
-        return false;
+        // if none of the above conditions are met, the boxes intersect
+        return true;
     }
 
-    // check if rect1 is above rect2
-    if (rect1Bottom < rect2Y || rect2Bottom < rect1Y) {
-        return false;
+    static doEntitiesIntersect(entity1, entity2) { // input: entity1, entity2
+        return this.doBoxesIntersect(entity1.getLocation().getX(), entity1.getLocation().getY(), entity1.getHeight(), entity1.getWidth(), entity2.getLocation().getX(), entity2.getLocation().getY(), entity2.getHeight(), entity2.getWidth());
+    }
+}
+
+class Location {
+    #x;
+    #y;
+
+    constructor(x, y) {
+        this.#x = x;
+        this.#y = y;
     }
 
-    // if none of the above conditions are met, the Rects intersect
-    return true;
+    getX() {
+        return this.#x;
+    }
+
+    setX(x) {
+        this.#x = x;
+    }
+
+    getY() {
+        return this.#y;
+    }
+
+    setY(y) { 
+        this.#y = y;
+    }
 }
 
-function drawStroke(x,y,width, height, color = "yellow", lineWidth = 4) {
-    ctx.strokeStyle = color;
-    ctx.lineWidth = lineWidth;
-    ctx.strokeRect(x ,y ,width, height);
+class Sprite {
+    #image;
+
+    constructor(path, width, height) {
+        this.#image = new Image(width, height);
+        this.#image.src = path;
+
+        return this.#image;
+    }
 }
 
-function gameOver() {
-    gameover = true;
-}
+class MissileManager {
+    _game;
 
-function createRandomStone() {
-    stones.push({
-        x: Math.floor(Math.random() * (canvas.width)) + 1,
-        y: 0,
-        speed: Math.round(((Math.random() * 2) + 1) * 10) / 10,
-        width: 80,
-        height: 80,
-    });
-}
+    #missileSpawnDelay = 20; // in frames (60 = approx every sec.)
+    
+    #missiles = [];
+    #missileDelayCounter = 0;
 
-function createMissile() {
-    let missileWidth = 8;
-    missiles.push({
-        x: player.x + (player.width / 2) - (missileWidth / 2),
-        y: player.y,
-        speed: 15,
-        width: missileWidth,
-        height: 20,
-    });
-}
+    constructor(game) {
+        this._game = game;
+    }
 
-function drawStones() {
-    if(!stones) {return;}
+    tick() {
+        if(!this.#missiles) {return;}
 
-    stones.forEach((stone) => {
-        ctx.drawImage(stoneImage, stone.x, stone.y, stone.width, stone.height);
-        
-        debug && drawStroke(stone.x, stone.y, stone.width, stone.height);
-    });
-}
+        this.#missiles.forEach((missile, missileIdx) => {
+           missile.tick();
 
-function tickStones() {
-    if(!stones) {return;}
-
-    stones.forEach((stone, idx) => {
-        stone.y += stone.speed;
-        // check if stones collide with player
-        if(doRectsIntersect(stone.x, stone.y, stone.width , stone.height, player.x, player.y, player.width, player.height)) {
-            if(stone.y > canvas.height) {
-                stones.splice(idx, 1);
+           this._game.getGameStateManager().getCurrentGameState().getStoneManager().getStones().forEach((stone, stoneIdx) => {
+            if(Util.doEntitiesIntersect(missile, stone)) {
+                this._game.getGameStateManager().getCurrentGameState().getStoneManager().removeStone(stone);
+                this.removeMissile(missile)
+                this._game.getGameStateManager().getCurrentGameState().increesePoints();
             }
-            gameOver();
+        });
+        });
+
+        if(this.#missileDelayCounter > 0) {
+            this.#missileDelayCounter--;
+        }
+    }
+
+    draw(canvas) {
+        if(!this.#missiles) {return;}
+
+        this.#missiles.forEach((missile) => {
+           missile.draw(canvas);
+        });
+    }
+
+    createMissile(player) {
+        if(this.#missileDelayCounter <= 0) {
+            this.#missileDelayCounter = this.#missileSpawnDelay;
+            this.#missiles.push(new Missile(this._game, player.getLocation().getX() + (player.getWidth() / 2), player.getLocation().getY()));
+        }
+    }
+
+    removeMissile(missile) {
+        this.#missiles.splice(this.#missiles.indexOf(missile), 1);
+    }
+
+    getMissileDelayCounter() {
+        return this.#missileDelayCounter;
+    }
+}
+
+class StoneManager {
+    _game;
+
+    #stoneSpawnDelay = 30; // in frames (60 = approx every sec.)
+    
+    #stones = [];
+    #stoneDelayCounter = 0;
+
+    constructor(game) {
+        this._game = game;
+    }
+
+    tick() {
+        if(!this.#stones) {return;}
+
+        this.#stones.forEach((stone, stoneIdx) => {
+           stone.tick();
+        });
+
+        this.#stoneDelayCounter--;
+        if(this.#stoneDelayCounter <= 0) {
+            this.#stoneDelayCounter = this.#stoneSpawnDelay;
+            this.createStone();
+        }
+    }
+
+    draw(canvas) {
+        if(!this.#stones) {return;}
+
+        this.#stones.forEach((stone) => {
+           stone.draw(canvas);
+        });
+    }
+
+    createStone() {
+        this.#stoneDelayCounter = this.#stoneSpawnDelay;
+
+        const randomX = Math.floor(Math.random() * (canvas.width)) + 1; // generates a random integer from 1 to canvas.width
+        const randomSpeed = Math.round(((Math.random() * 2) + 1) * 10) / 10; // random decimal between 1.0 and 3.0, rounded to 1 decimal place.
+
+        this.#stones.push(new Stone(this._game, randomX, 0, randomSpeed));
+    }
+
+    removeStone(stone) {
+        this.#stones.splice(this.#stones.indexOf(stone), 1);
+    }
+
+    getStones() {
+        return this.#stones;
+    }
+}
+
+// ============================
+// Entities 
+
+class Entity {
+    _game;
+    #location;
+    #width;
+    #height;
+    #speed;
+
+    constructor(_game, x = 0,y = 0, width = 10, height = 10, speed = 2) {
+        if (this.constructor === Entity) {throw new Error("Abstract classes can't be instantiated.");}
+        
+        this._game = game;
+        this.#location = new Location(x, y);
+        this.#height = height;
+        this.#width = width;
+        this.#speed = speed;
+    }
+
+    tick() {throw new Error("Method 'tick()' must be implemented.");}
+    draw(canvas) {throw new Error("Method 'draw()' must be implemented.");}
+
+    getLocation() {
+        return this.#location;
+    }
+
+    getWidth() {
+        return this.#width;
+    }
+
+    getHeight() {
+        return this.#height;
+    }
+
+    getSpeed() {
+        return this.#speed;
+    }
+
+    setSpeed(speed) {
+        this.#speed = speed;
+    }
+
+    drawDebug(canvas) {
+        canvas.drawStroke(this.getLocation().getX(), this.getLocation().getY(), this.getWidth(), this.getHeight(), "red");
+    }
+}
+
+class Player extends Entity {
+    #sprite;
+
+    constructor(game, x, y, width, height, speed) {
+        super(game, x, y, width, height, speed);
+        this.#sprite = new Sprite("ufo.png", this.getWidth(), this.getHeight());
+    }
+
+    tick() {
+        
+    }
+
+    draw(canvas) {
+        canvas.getContext().drawImage(this.getSprite(), this.getLocation().getX(), this.getLocation().getY(), this.getWidth(), this.getHeight());
+                
+        if(this._game.isDebugMode()) {
+            this.drawDebug(canvas);
+        }
+    }
+
+    getSprite() {
+        return this.#sprite;
+    }
+
+    playerController() {
+        // move left
+        if(this._game.getGameStateManager().isKeyPressed('a') || this._game.getGameStateManager().isKeyPressed('A') || this._game.getGameStateManager().isKeyPressed('ArrowLeft')) { 
+            if(this.getLocation().getX() - this.getSpeed() <= 0) {
+                this.getLocation().setX(0);
+            } else {
+                this.getLocation().setX(this.getLocation().getX() - this.getSpeed());
+            }
+        }
+    
+        // move right
+        if(this._game.getGameStateManager().isKeyPressed('d') || this._game.getGameStateManager().isKeyPressed('D') || this._game.getGameStateManager().isKeyPressed('ArrowRight')) {
+            if(this.getLocation().getX() + this.getSpeed() > this._game.getCanvas().getWidth() +- this.getWidth()) {
+                this.getLocation().setX(this._game.getCanvas().getWidth() - this.getWidth());
+            } else {
+                this.getLocation().setX(this.getLocation().getX() + this.getSpeed())
+            }
+        }
+    
+        // shoot missile
+        if(this._game.getGameStateManager().isKeyPressed(' ') || this._game.getGameStateManager().isKeyPressed('ArrowUp')) {
+            this._game.getGameStateManager().getCurrentGameState().getMissileManager().createMissile(this);
+        }
+    }
+
+    drawDebug(canvas) {
+        super.drawDebug(canvas);
+        canvas.getContext().lineWidth = 1;
+        canvas.getContext().beginPath(); 
+        canvas.getContext().moveTo(this.getLocation().getX() + (this.getWidth() / 2), this.getLocation().getY()); 
+        canvas.getContext().lineTo(this.getLocation().getX() + (this.getWidth() / 2), 0); canvas.getContext().stroke();
+    }
+}
+
+class Stone extends Entity {
+    #sprite;
+
+    constructor(game, x, y, speed) {
+        super(game, x, y, 80, 80, speed);
+        this.#sprite = new Sprite("stone.png", this.getWidth(), this.getHeight());
+    }
+
+    tick() {
+        this.getLocation().setY(this.getLocation().getY() + this.getSpeed());
+        // check if stones collide with player
+        if(Util.doEntitiesIntersect(this, this._game.getGameStateManager().getCurrentGameState().getPlayer())) {
+            this._game.getGameStateManager().getCurrentGameState().getStoneManager().removeStone(this);
+            this._game.getGameStateManager().getCurrentGameState().gameOver();
             return;
         }
 
-        if(stone.y > canvas.height) {
-            stones.splice(idx, 1);
+        if(this.getLocation().getY() > this._game.getCanvas().getHeight()) {
+            this._game.getGameStateManager().getCurrentGameState().getStoneManager().removeStone(this);
         }
-    });
+    }
 
-    stoneDelayCounter--;
-    if(stoneDelayCounter <= 0) {
-        stoneDelayCounter = stoneSpawnDelay;
-        createRandomStone();
+    draw(canvas) {
+        canvas.getContext().drawImage(this.getSprite(), this.getLocation().getX(), this.getLocation().getY(), this.getWidth(), this.getHeight());
+
+        if(this._game.isDebugMode()) {
+            this.drawDebug(canvas);
+        }
+    }
+
+    getSprite() {
+        return this.#sprite;
     }
 }
 
-function drawMissile() {
-    if(!missiles) {return;}
+class Missile extends Entity {
+    constructor(game, x, y) {
+        super(game, x, y, 8, 20, 15);
+        this.getLocation().setX(x - (this.getWidth() / 2)); // correct x position, minus half of missile width
+    }
 
-    missiles.forEach((missile) => {
-        ctx.fillStyle = 'yellow';
-        ctx.fillRect(missile.x, missile.y, missile.width, missile.height);
+    tick() {
+        this.getLocation().setY(this.getLocation().getY() - this.getSpeed());
 
-        debug && drawStroke(missile.x, missile.y, missile.width, missile.height, "blue");
-    });
+        // check if missile leaves screen on the top
+        if(this.getLocation().getY() <= 0 - this.getHeight()) {
+            this._game.getGameStateManager().getCurrentGameState().getMissileManager().removeMissile(this);
+        }
+    }
+
+    draw(canvas) {
+        canvas.getContext().fillStyle = 'yellow';
+        canvas.getContext().fillRect(this.getLocation().getX(), this.getLocation().getY(), this.getWidth(), this.getHeight());
+    }
 }
 
-function tickMissile() {
-    if(!missiles) {return;}
 
-    missiles.forEach((missile, missileIdx) => {
-        missile.y -= missile.speed;
+// ============================
+// GAME STATES
 
-        stones.forEach((stone, stoneIdx) => {
-            if(doRectsIntersect(stone.x, stone.y, stone.width, stone.height, missile.x, missile.y, missile.width, missile.height)) {
-                stones.splice(stoneIdx, 1);
-                missiles.splice(missileIdx, 1);
-                points++;
+class GameState {
+    _game;
+    constructor(game) {
+        if (this.constructor === GameState) {throw new Error("Abstract classes can't be instantiated.")};
+
+        this._game = game;
+    };
+
+    start() {throw new Error("Method 'start()' must be implemented.");}
+    stop() {throw new Error("Method 'stop()' must be implemented.");}
+
+    tick() {throw new Error("Method 'tick()' must be implemented.");}
+    draw(canvas) {throw new Error("Method 'draw()' must be implemented.");}
+
+    _tickKeyboard() {throw new Error("Method 'tickKeyboard()' must be implemented.");}
+}
+
+class MenuState extends GameState {
+    start() {
+
+    }
+
+    stop() {
+
+    }
+
+    tick() {
+        this._tickKeyboard();
+    }
+
+    draw(canvas) {
+        // title
+        const gameTitleText = 'Falling Stuff';
+        canvas.getContext().fillStyle = '#2c79ff';
+        canvas.getContext().font = "72px ARIAL"
+        canvas.getContext().fillText(gameTitleText, canvas.getWidth() / 2 - canvas.getContext().measureText(gameTitleText).width / 2, canvas.getHeight() / 2 + 26);
+
+        // subtitle
+        const startGameText = 'Press "S" to start the game.';
+        canvas.getContext().font = "25px ARIAL";
+        canvas.getContext().fillText(startGameText, canvas.getWidth() / 2 - canvas.getContext().measureText(startGameText).width / 2,  canvas.getHeight() / 2 + 60);
+        const escapeGameText = 'Press "ESC" to go back to the main menu again.'
+        canvas.getContext().font = "20px ARIAL";
+        canvas.getContext().fillText(escapeGameText, canvas.width / 2 - canvas.getContext().measureText(escapeGameText).width / 2, canvas.height - 10);
+
+        // copyright
+        const copyrightText = '©2024 by HATBE';
+        canvas.getContext().font = "11px ARIAL";
+        canvas.getContext().fillText(copyrightText, canvas.getWidth() - canvas.getContext().measureText(copyrightText).width - 10, canvas.getHeight() - 10);
+    }
+
+    _tickKeyboard() {
+        // change gamestate to inGame
+        if(this._game.getGameStateManager().isKeyPressed('s')) {
+            this._game.getGameStateManager().switchGameState(this._game.getGameStateManager().gameStates.inGame);
+        }
+    }
+}
+
+class InGameState extends GameState {
+    #player;
+    #backgroundImage;
+
+    #isGameOver = false;
+
+    #missileManager;
+    #stoneManager;
+
+    #points = 0;
+
+    constructor(game) {
+        super(game);
+
+        this.#backgroundImage = new Sprite("space.jpg", this._game.getCanvas().getWidth(), this._game.getCanvas().getHeight());
+        this.#player = new Player(this._game, 0, 0, 70, 50, 5);
+
+        this.#missileManager = new MissileManager(this._game);
+        this.#stoneManager = new StoneManager(this._game);
+    }
+
+    start() {
+        this.#setupPlayer();
+    }
+
+    stop() {
+
+    }
+
+    tick() {
+        if(this.isGameOver()){
+            this._game.getGameStateManager().switchGameState(this._game.getGameStateManager().gameStates.gameOver);
+            return;
+        }
+        this._tickKeyboard();
+        this.#player.tick();
+        this.#missileManager.tick();
+        this.#stoneManager.tick();
+    }
+
+    draw(canvas) {
+        this.#drawBackground(canvas);
+        this.#player.draw(canvas);
+        this.#missileManager.draw(canvas);
+        this.#stoneManager.draw(canvas);
+
+        this.#drawUi(canvas);
+    }
+
+    #setupPlayer() {
+        this.#player.getLocation().setX((this._game.getCanvas().getWidth() / 2) - (this.#player.getWidth() / 2));
+        this.#player.getLocation().setY(this._game.getCanvas().getHeight() - this.#player.getHeight() - 15);  // -15 for floating effect
+    }
+
+    #drawBackground(canvas) {
+        canvas.getContext().drawImage(this.#backgroundImage, 0, 0, canvas.getWidth(), canvas.getHeight());
+    }
+
+    getMissileManager() {
+        return this.#missileManager;
+    }
+
+    getStoneManager() {
+        return this.#stoneManager;
+    }
+
+    getPlayer() {
+        return this.#player;
+    }
+
+    getPoints() {
+        return this.#points;
+    }
+
+    increesePoints(points = 1) {
+        this.#points += points;
+    }
+
+    decreasePoints(points = 1) {
+        this.#points -= points;
+    }
+
+    gameOver() {
+        this.#isGameOver = true;
+    }
+
+    isGameOver() {
+        return this.#isGameOver;
+    }
+
+    #drawUi(canvas) {
+        canvas.getContext().font = "20px ARIAL"
+        canvas.getContext().fillStyle = '#fff';
+        canvas.getContext().fillText(`MC: ${(this.getMissileManager().getMissileDelayCounter() / 60).toFixed(1)}`, 0, 16);
+        canvas.getContext().fillText(`SCORE: ${this.getPoints()}`, 0, 32);
+
+        if(this._game.isDebugMode()) {
+            this.#drawDebug(canvas);
+        }
+    }
+
+    #drawDebug(canvas) {
+        canvas.getContext().fillStyle = '#f00';
+        fpsText = `FPS: ${this._game.getCurrentFps()}`;
+        canvas.getContext().fillText(fpsText, canvas.width - canvas.getContext().measureText(fpsText).width, 16);
+    }
+
+    _tickKeyboard() {
+        this.#player.playerController();
+        // change gamestate to inGame
+        if(this._game.getGameStateManager().isKeyPressed('Escape')) {
+            this._game.getGameStateManager().switchGameState(this._game.getGameStateManager().gameStates.menu);
+        }
+    }
+}
+
+class GameOverState extends GameState {
+    start() {
+
+    }
+
+    stop() {
+
+    }
+
+    tick() {
+        this._tickKeyboard();
+    }
+
+    draw(canvas) {
+        canvas.getContext().fillStyle = 'red';
+        canvas.getContext().font = '72px Arial';
+        const gameOverText = 'Game Over';
+        canvas.getContext().fillText(gameOverText, canvas.getWidth() / 2 - canvas.getContext().measureText(gameOverText).width / 2, canvas.getHeight() / 2 + 26);
+    }
+
+    _tickKeyboard() {
+        // change gamestate to menu
+        if(this._game.getGameStateManager().isKeyPressed('Escape')) {
+            this._game.getGameStateManager().switchGameState(this._game.getGameStateManager().gameStates.menu);
+        }
+    }
+}
+
+class GameStateManager {
+    #game;
+    #currentGameState;
+    #keysPressed;
+
+    gameStates = {
+        inGame: InGameState,
+        gameOver: GameOverState,
+        menu: MenuState,
+    }
+
+    constructor(game) {
+        this.#game = game;
+        this.#currentGameState = null;
+        this.#keysPressed = {};
+        
+        this._tickKeyboard();
+    }
+
+    switchGameState(gameState) {
+        if(this.#currentGameState) {
+            this.#currentGameState.stop();
+        }
+        this.#currentGameState = new gameState(this.#game);
+        this.#currentGameState.start();
+    }
+
+    getCurrentGameState() {
+        return this.#currentGameState;
+    }
+
+    _tickKeyboard() {
+        document.addEventListener("keydown", (event) => {
+            // set the state of the pressed key to true
+            this.#keysPressed[event.key] = true;
+
+            // D + M Key pressed
+            // toggle debug mode
+            if(this.#keysPressed['m'] && this.#keysPressed['d']) {
+                this.#game.toggleDebugMode();
             }
         });
+        document.addEventListener("keyup", (event) => {
+            // Set the state of the released key to false
+            this.#keysPressed[event.key] = false;
+        });
+    }
 
-        if(missile.y <= 0) {
-            missiles.splice(missileIdx, 1);
+    isKeyPressed(key) {
+        return this.#keysPressed[key];
+    }
+}
+
+// ============================
+// Game 
+
+class Game {
+    #debugMode;
+
+    #canvas;
+
+    #targetFPS;
+    #frameDelay
+    #oldTimeStamp;
+    #currentFPS;
+
+    #gameStateManager;
+
+    constructor(width, height, maxFps) {
+        this.#debugMode = false;
+
+        this.#canvas = new Canvas(width, height);
+
+        this.width = width;
+        this.height = height;
+
+        this.#targetFPS = maxFps;
+        this.#frameDelay = 1000 / this.#targetFPS;
+        this.#oldTimeStamp = 0;
+        this.#currentFPS = 0;
+
+        this.#gameStateManager = new GameStateManager(this);
+    }
+
+    start() {
+        // setup canvas
+        this.#canvas.init();
+
+        this.#gameStateManager.switchGameState(this.#gameStateManager.gameStates.inGame);
+
+        // start game loop
+        window.requestAnimationFrame((timeStamp) => {this.#loop(timeStamp)});
+    }
+
+    #loop(timeStamp) {
+        // calculate the number of milliseconds passed since the last frame
+        const elapsed = timeStamp - this.#oldTimeStamp;
+
+        // Check if enough time has passed to meet the target FPS
+        if (elapsed >= this.#frameDelay) {
+            // Update oldTimeStamp
+            this.#oldTimeStamp = timeStamp;
+
+            // Calculate fps
+            this.#currentFPS = Math.round(1000 / elapsed);
+            
+            // tick game
+            this.#tick();
+
+            // draw game
+            this.#draw(this.getCanvas());
         }
-    });
 
-    if(misslieDelayCounter > 0) {
-        misslieDelayCounter--;
+        // Request the next frame
+        window.requestAnimationFrame((timeStamp) => {this.#loop(timeStamp)});
+    }
+
+    #tick() {
+        this.getGameStateManager().getCurrentGameState().tick(); 
+    }
+
+    #draw(canvas) {
+        this.getCanvas().clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+
+        this.getGameStateManager().getCurrentGameState().draw(canvas); 
+    }
+
+    isDebugMode() {
+        return this.#debugMode;
+    }
+
+    setDebugMode(debugMode) {
+        this.#debugMode = debugMode;
+    }
+
+    toggleDebugMode() {
+        this.#debugMode = !this.#debugMode;
+    }
+
+    getCanvas() {
+        return this.#canvas;
+    }
+
+    getGameStateManager() {
+        return this.#gameStateManager;
+    }
+
+    getCurrentFps() {
+        return this.#currentFPS;
     }
 }
 
-function drawPlayer() {
-    ctx.drawImage(playerImage, player.x, player.y, player.width, player.height);
+class Canvas {
+    #width;
+    #height;
 
-    if(debug) {
-        drawStroke(player.x, player.y, player.width, player.height, "red");
-        ctx.lineWidth = 1;
-        ctx.beginPath(); ctx.moveTo(player.x + (player.width / 2), player.y); ctx.lineTo(player.x + (player.width / 2), 0); ctx.stroke();
+    #canvas;
+    #context;
+
+    constructor(width, height) {
+        this.#width = width;
+        this.#height = height;
+
+        this.#canvas = document.getElementById('canvas');
+        this.#context = canvas.getContext("2d");
     }
 
-}
-
-function playerController() {
-    if(keysPressed['a'] || keysPressed['A'] || keysPressed['ArrowLeft']) { 
-        if(player.x - player.speed <= 0) {
-            player.x = 0;
-        } else {
-            player.x -= player.speed;
-        }
+    init() {
+        this.getCanvas().width = this.#width;
+        this.getCanvas().height = this.#height;
     }
 
-    if(keysPressed['d'] || keysPressed['D'] || keysPressed['ArrowRight']) {
-        if(player.x + player.speed > canvas.width +- player.width) {
-            player.x = canvas.width - player.width;
-        } else {
-            player.x += player.speed;
-        }
+    getWidth() {
+        return this.#width;
     }
 
-    if(keysPressed[' '] || keysPressed['ArrowUp']) { // space bar
-        if(misslieDelayCounter <= 0) {
-            misslieDelayCounter = missileSpawnDelay;
-            createMissile();
-        }
+    getHeight() {
+        return this.#height;
+    }
+
+    getCanvas() {
+        return this.#canvas;
+    }
+
+    getContext() {
+        return this.#context;
+    }
+
+    drawSquare(x = 0, y = 0, width = 20, height = 20, color = 'white') {
+        this.getContext().fillStyle = color;
+        this.getContext().fillRect(x, y, width, height);
+    }
+
+    clearRect(x, y, width, height) {
+        this.getContext().clearRect(x, y, width, height);
+    }
+
+    drawStroke(x, y, width, height, color = "yellow", lineWidth = 1) {
+        this.getContext().strokeStyle = color;
+        this.getContext().lineWidth = lineWidth;
+        this.getContext().strokeRect(x , y, width, height);
     }
 }
 
-function tick() {
-    if(gameover) {
-        // TODO: GAME OVER
-        return;
-    }
+// ============================
+// GAME
+// ============================
 
-    playerController();
-    tickMissile();
-    tickStones();
-}
-
-function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    if(gameover) {
-        drawGameOver();
-        return;
-    }
-
-    ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
-
-    ctx.font = "20px ARIAL"
-    ctx.fillStyle = '#fff';
-    ctx.fillText(`MC: ${(misslieDelayCounter / 60).toFixed(1)}`, 0, 16);
-    ctx.fillText(`SCORE: ${points}`, 0, 32);
-
-    if(debug) {
-        ctx.fillStyle = '#f00';
-        fpsText = `FPS: ${currentFPS}`;
-        ctx.fillText(fpsText, canvas.width - ctx.measureText(fpsText).width, 16);
-    }
-
-    drawMissile();
-    drawPlayer();
-    drawStones();
-}
-
-function drawGameOver() {
-    ctx.fillStyle = 'red';
-    ctx.font = '72px Arial';
-    const gameOverText = 'Game Over';
-    ctx.fillText(gameOverText, canvas.width / 2 - ctx.measureText(gameOverText).width / 2, canvas.height / 2 + 26);
-}
-
-function gameLoop(timeStamp) {
-    // Calculate the number of milliseconds passed since the last frame
-    const elapsed = timeStamp - oldTimeStamp;
-
-    // Check if enough time has passed to meet the target FPS
-    if (elapsed >= frameDelay) {
-        // Update oldTimeStamp
-        oldTimeStamp = timeStamp;
-
-        // Calculate fps
-        currentFPS = Math.round(1000 / elapsed);
-
-        // tick game
-        tick();
-
-        // draw game
-        draw();
-    }
-
-    window.requestAnimationFrame((timeStamp) => {gameLoop(timeStamp)});
-}
-
-function keyboardListener() {
-    document.addEventListener("keydown", (event) => {
-        keysPressed[event.key] = true;
-
-        if(keysPressed['m'] && keysPressed['d']) {
-            debug = !debug;
-        }
-    });
-    document.addEventListener("keyup", (event) => {
-        keysPressed[event.key] = false;
-    });
-}
-
-function init() {
-    // set player to center bottom
-    player.y = canvas.height - player.height - 15; // -15 for floating effect
-    player.x = (canvas.width / 2) - (player.width / 2); 
-
-    keyboardListener();
-
-    window.requestAnimationFrame((timeStamp) => {gameLoop(timeStamp)});
-}
-
-init();
+// initialize game
+const game = new Game(1280, 720, 60);
+game.start();
