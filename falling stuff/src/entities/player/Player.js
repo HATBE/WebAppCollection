@@ -1,4 +1,4 @@
-import Entity from './Entity.js';
+import Entity from '../Entity.js';
 
 export default class Player extends Entity {
     constructor(game, x, y, width, height, speed) {

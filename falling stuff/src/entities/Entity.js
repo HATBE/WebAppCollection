@@ -48,10 +48,10 @@ export default class Entity {
     }
 
     drawDebug(canvas) {
-        canvas.drawStroke(this.getLocation().getX(), this.getLocation().getY(), this.getWidth(), this.getHeight(), "red");
+        this._game.getDrawManager().drawStroke(this.getLocation().getX(), this.getLocation().getY(), this.getWidth(), this.getHeight(), "red");
     }
 
     _drawSelf(canvas) {
-        canvas.getContext().drawImage(this.getSprite(), this.getLocation().getX(), this.getLocation().getY(), this.getWidth(), this.getHeight());
+        this._game.getDrawManager().drawSprite(this.#sprite, this.getLocation().getX(), this.getLocation().getY(), this.getWidth(), this.getHeight());
     }
 }

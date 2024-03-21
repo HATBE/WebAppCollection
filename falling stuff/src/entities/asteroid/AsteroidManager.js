@@ -1,5 +1,5 @@
-import Asteroid from '../entities/Asteroid.js';
-import Util from '../util/Util.js';
+import Asteroid from './Asteroid.js';
+import Util from '../../util/Util.js';
 
 export default class AsteroidManager {
     _game;
@@ -29,7 +29,7 @@ export default class AsteroidManager {
             }
         });
 
-        // create new Asteroid
+        // create new asteroid
         this.#asteroidDelayCounter--;
         if(this.#asteroidDelayCounter <= 0) {
             this.#asteroidDelayCounter = this.#asteroidSpawnDelay;

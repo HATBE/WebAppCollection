@@ -1,3 +1,5 @@
+import DrawManager from './DrawManager.js';
+
 export default class Canvas {
     #width;
     #height;
@@ -32,24 +34,5 @@ export default class Canvas {
 
     getContext() {
         return this.#context;
-    }
-
-    drawSquare(x = 0, y = 0, width = 20, height = 20, color = 'white') {
-        this.getContext().fillStyle = color;
-        this.getContext().fillRect(x, y, width, height);
-    }
-
-    clearRect(x, y, width, height) {
-        this.getContext().clearRect(x, y, width, height);
-    }
-
-    drawStroke(x, y, width, height, color = "yellow", lineWidth = 1) {
-        this.getContext().strokeStyle = color;
-        this.getContext().lineWidth = lineWidth;
-        this.getContext().strokeRect(x , y, width, height);
-    }
-
-    drawText() {
-        // TODO:
     }
 }

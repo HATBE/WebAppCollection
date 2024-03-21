@@ -1,8 +1,8 @@
 import GameState from './GameState.js';
 import Sprite from '../gfx/Sprite.js';
-import Player from '../entities/Player.js';
-import MissileManager from '../entities/MissileManager.js';
-import AsteroidManager from '../entities/AsteroidManager.js';
+import Player from '../entities/player/Player.js';
+import MissileManager from '../entities/missile/MissileManager.js';
+import AsteroidManager from '../entities/asteroid/AsteroidManager.js';
 
 export default class InGameState extends GameState {
     #player;

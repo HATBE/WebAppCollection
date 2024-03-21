@@ -1,5 +1,5 @@
-import Missile from '../entities/Missile.js';
-import Util from '../util/Util.js';
+import Missile from './Missile.js';
+import Util from '../../util/Util.js';
 
 export default class MissileManager {
     _game;

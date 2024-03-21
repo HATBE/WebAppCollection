@@ -1,5 +1,6 @@
 import Canvas from './gfx/Canvas.js';
 import GameStateManager from './gameStates/GameStateManager.js';
+import DrawManager from './gfx/DrawManager.js';
 
 export default class Game {
     #debugMode;
@@ -12,6 +13,7 @@ export default class Game {
     #currentFPS;
 
     #gameStateManager;
+    #drawManager;
 
     constructor(width, height, maxFps) {
         this.#debugMode = false;
@@ -27,6 +29,7 @@ export default class Game {
         this.#currentFPS = 0;
 
         this.#gameStateManager = new GameStateManager(this);
+        this.#drawManager = new DrawManager(this);
     }
 
     start() {
@@ -67,7 +70,7 @@ export default class Game {
     }
 
     #draw(canvas) {
-        this.getCanvas().clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        this.getDrawManager().clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
 
         this.getGameStateManager().getCurrentGameState().draw(canvas); 
     }
@@ -94,5 +97,9 @@ export default class Game {
 
     getCurrentFps() {
         return this.#currentFPS;
+    }
+
+    getDrawManager() {
+        return this.#drawManager;
     }
 }
