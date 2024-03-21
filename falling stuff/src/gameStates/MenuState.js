@@ -19,23 +19,15 @@ export default class MenuState extends GameState {
 
     draw(canvas) {
         // title
-        const gameTitleText = 'Falling Stuff';
-        canvas.getContext().fillStyle = '#2c79ff';
-        canvas.getContext().font = "72px ARIAL"
-        canvas.getContext().fillText(gameTitleText, canvas.getWidth() / 2 - canvas.getContext().measureText(gameTitleText).width / 2, canvas.getHeight() / 2 + 26);
+        this._game.getDrawManager().drawText('Falling Stuff', '#2c79ff', -1, -1, 72, 'ARIAL', 0, 26);
 
         // subtitle
-        const startGameText = 'Press "S" to start the game.';
-        canvas.getContext().font = "25px ARIAL";
-        canvas.getContext().fillText(startGameText, canvas.getWidth() / 2 - canvas.getContext().measureText(startGameText).width / 2,  canvas.getHeight() / 2 + 60);
-        const escapeGameText = 'Press "ESC" to go back to the main menu again.'
-        canvas.getContext().font = "20px ARIAL";
-        canvas.getContext().fillText(escapeGameText, canvas.getWidth() / 2 - canvas.getContext().measureText(escapeGameText).width / 2, canvas.getHeight() - 10);
+        this._game.getDrawManager().drawText('Press "S" to start the game.', '#2c79ff', -1, -1, 25, 'ARIAL', 0, 60);
+        this._game.getDrawManager().drawText('Press "ESC" to go back to the main menu again.', '#2c79ff', -1, canvas.getHeight() - 10, 20, 'ARIAL', 0, 0);
 
         // copyright
-        const copyrightText = '©2024 by HATBE';
-        canvas.getContext().font = "11px ARIAL";
-        canvas.getContext().fillText(copyrightText, canvas.getWidth() - canvas.getContext().measureText(copyrightText).width - 10, canvas.getHeight() - 10);
+        //this._game.getDrawManager().drawText('©2024 by HATBE', -1, canvas.getHeight() - 10, 11, 'ARIAL', 0, 0);
+
     }
 
     #createButton() {

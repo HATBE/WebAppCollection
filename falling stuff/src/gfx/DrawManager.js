@@ -1,33 +1,51 @@
 export default class DrawManager {
     #game;
     #canvas;
+    #context;
 
     constructor(game) {
         this.#game = game;
         this.#canvas = this.#game.getCanvas();
+        this.#context = this.#canvas.getContext();
     }
 
     drawSquare(x = 0, y = 0, width = 20, height = 20, color = 'white') {
-        this.#canvas.getContext().fillStyle = color;
-        this.#canvas.getContext().fillRect(x, y, width, height);
+        this.#context.fillStyle = color;
+        this.#context.fillRect(x, y, width, height);
     }
 
     clearRect(x, y, width, height) {
-        this.#canvas.getContext().clearRect(x, y, width, height);
+        this.#context.clearRect(x, y, width, height);
     }
 
     drawStroke(x, y, width, height, color = "yellow", lineWidth = 1) {
-        this.#canvas.getContext().strokeStyle = color;
-        this.#canvas.getContext().lineWidth = lineWidth;
-        this.#canvas.getContext().strokeRect(x , y, width, height);
+        this.#context.strokeStyle = color;
+        this.#context.lineWidth = lineWidth;
+        this.#context.strokeRect(x , y, width, height);
     }
 
     drawSprite(sprite, x, y, width, height) {
-        this.#canvas.getContext().drawImage(sprite, x, y, width, height);
+        this.#context.drawImage(sprite, x, y, width, height);
     }
 
-    drawText() {
-        // TODO:
+    drawText(text, color, x, y, sizePx = '72', font = 'ARIAL', offsetX = 0, offsetY = 0) {
+        this.#context.fillStyle = color;
+        this.#context.font = `${sizePx}px ${font}`;
+
+        // center X
+        if(x == -1) {
+            x = this.#canvas.getWidth() / 2 - this.#canvas.getContext().measureText(text).width / 2;
+        }
+
+        // center Y
+        if(y == -1) {
+            y = this.#canvas.getHeight() / 2;
+        }
+
+        x += offsetX;
+        y += offsetY;
+
+        this.#context.fillText(text, x, y);
     }
 
 }
