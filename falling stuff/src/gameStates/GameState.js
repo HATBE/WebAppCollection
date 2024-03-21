@@ -9,9 +9,11 @@ export default class GameState {
     start() {throw new Error("Method 'start()' must be implemented.");}
     stop() {throw new Error("Method 'stop()' must be implemented.");}
 
+    _loadAssets() {throw new Error("Method '_loadAssets()' must be implemented.");}
+
     tick() {throw new Error("Method 'tick()' must be implemented.");}
     draw(canvas) {throw new Error("Method 'draw()' must be implemented.");}
 
-    _tickKeyboard() {throw new Error("Method 'tickKeyboard()' must be implemented.");}
-    mouseClick(event) {throw new Error("Method 'tickKeyboard()' must be implemented.");}
+    _tickKeyboard() {throw new Error("Method '_tickKeyboard()' must be implemented.");}
+    mouseClick(event) {throw new Error("Method 'mouseClick()' must be implemented.");}
 }

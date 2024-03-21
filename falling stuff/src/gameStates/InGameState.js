@@ -18,6 +18,8 @@ export default class InGameState extends GameState {
     constructor(game) {
         super(game);
 
+        this._loadAssets();
+
         this.#backgroundImage = new Sprite("space.jpg", this._game.getCanvas().getWidth(), this._game.getCanvas().getHeight());
         this.#player = new Player(this._game, 0, 0, 70, 50, 5);
 
@@ -32,6 +34,10 @@ export default class InGameState extends GameState {
     stop() {
         this.getMissileManager().removeAllMissiles();
         this.getAsteroidManager().removeAllAsteroids();
+    }
+
+    _loadAssets() {
+        
     }
 
     tick() {

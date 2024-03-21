@@ -9,6 +9,10 @@ export default class MenuState extends GameState {
 
     }
 
+    _loadAssets() {
+        
+    }
+
     tick() {
         this._tickKeyboard();
     }

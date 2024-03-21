@@ -9,6 +9,10 @@ export default class GameOverState extends GameState {
 
     }
 
+    _loadAssets() {
+        
+    }
+
     tick() {
         this._tickKeyboard();
     }
