@@ -32,9 +32,11 @@ export default class DrawManager {
         this.#context.fillStyle = color;
         this.#context.font = `${sizePx}px ${font}`;
 
+        // TODO: centerXAlign, centerYAlign, leftAlign and rightAlign
+
         // center X
         if(x == -1) {
-            x = this.#canvas.getWidth() / 2 - this.#canvas.getContext().measureText(text).width / 2;
+            x = this.#canvas.getWidth() / 2 - this.measureText(text).width / 2;
         }
 
         // center Y
@@ -48,4 +50,7 @@ export default class DrawManager {
         this.#context.fillText(text, x, y);
     }
 
+    measureText(text) {
+        return this.#canvas.getContext().measureText(text);
+    }
 }

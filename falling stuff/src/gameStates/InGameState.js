@@ -102,10 +102,9 @@ export default class InGameState extends GameState {
     }
 
     #drawUi(canvas) {
-        canvas.getContext().font = "20px ARIAL"
-        canvas.getContext().fillStyle = '#fff';
-        canvas.getContext().fillText(`MC: ${(this.getMissileManager().getMissileDelayCounter() / 60).toFixed(1)}`, 0, 16);
-        canvas.getContext().fillText(`SCORE: ${this.getPoints()}`, 0, 32);
+        this._game.getDrawManager().drawText(`MC: ${(this.getMissileManager().getMissileDelayCounter() / 60).toFixed(1)}`, '#fff', 0, 16, 20, 'ARIAL');
+        this._game.getDrawManager().drawText(`SCORE: ${this.getPoints()}`, '#fff', 0, 32, 20, 'ARIAL');
+
 
         if(this._game.isDebugMode()) {
             this.#drawDebug(canvas);
@@ -113,9 +112,8 @@ export default class InGameState extends GameState {
     }
 
     #drawDebug(canvas) {
-        canvas.getContext().fillStyle = '#ff0000';
         const fpsText = `FPS: ${this._game.getCurrentFps()}`;
-        canvas.getContext().fillText(fpsText, canvas.getWidth() - canvas.getContext().measureText(fpsText).width, 16);
+        this._game.getDrawManager().drawText(fpsText, '#ff0000', canvas.getWidth() - this._game.getDrawManager().measureText(fpsText).width, 16, 20, 'ARIAL');
     }
 
     _tickKeyboard() {

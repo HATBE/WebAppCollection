@@ -18,10 +18,7 @@ export default class GameOverState extends GameState {
     }
 
     draw(canvas) {
-        canvas.getContext().fillStyle = 'red';
-        canvas.getContext().font = '72px Arial';
-        const gameOverText = 'Game Over';
-        canvas.getContext().fillText(gameOverText, canvas.getWidth() / 2 - canvas.getContext().measureText(gameOverText).width / 2, canvas.getHeight() / 2 + 26);
+        this._game.getDrawManager().drawText('Game Over', '#ff0000', -1, -1, 72, 'ARIAL');
     }
 
     _tickKeyboard() {
