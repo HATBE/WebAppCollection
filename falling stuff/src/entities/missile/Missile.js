@@ -2,7 +2,7 @@ import Entity from '../Entity.js';
 
 export default class Missile extends Entity {
     constructor(game, x, y) {
-        super(game, 'missile.png', x, y, 15, 37, 15);
+        super(game, 'missile.png', x, y, 15, 37, 15, 1);
         this.getLocation().setX(x - (this.getWidth() / 2)); // correct x position, minus half of missile width
     }
 
@@ -15,7 +15,7 @@ export default class Missile extends Entity {
         }
     }
 
-    draw(canvas) {
-        this._drawSelf(canvas);
+    draw() {
+        this._drawSelf();
     }
 }

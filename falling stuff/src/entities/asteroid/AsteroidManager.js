@@ -24,7 +24,9 @@ export default class AsteroidManager {
             // check if asteroids collide with player
             if(Util.doEntitiesIntersect(asteroid, this._game.getGameStateManager().getCurrentGameState().getPlayer())) {
                 this._game.getGameStateManager().getCurrentGameState().getAsteroidManager().removeAsteroid(this);
-                this._game.getGameStateManager().getCurrentGameState().gameOver();
+                this._game.getGameStateManager().getCurrentGameState().getPlayer().decreaseHealth(1);
+                
+                /*this._game.getGameStateManager().getCurrentGameState().gameOver();*/
                 return;
             }
         });
@@ -37,13 +39,13 @@ export default class AsteroidManager {
         }
     }
 
-    draw(canvas) {
+    draw() {
         if(!this.#asteroids) {
             return;
         }
 
         this.#asteroids.forEach((asteroid) => {
-           asteroid.draw(canvas);
+           asteroid.draw();
         });
     }
 

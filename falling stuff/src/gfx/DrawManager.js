@@ -50,6 +50,14 @@ export default class DrawManager {
         this.#context.fillText(text, x, y);
     }
 
+    drawLine(xFrom, yFrom, xTo, yTo, lineWidth = 1) {
+        this.#context.lineWidth = lineWidth;
+        this.#context.beginPath(); 
+        this.#context.moveTo(xFrom, yFrom); 
+        this.#context.lineTo(xTo, yTo); 
+        this.#context.stroke();
+    }
+
     measureText(text) {
         return this.#canvas.getContext().measureText(text);
     }

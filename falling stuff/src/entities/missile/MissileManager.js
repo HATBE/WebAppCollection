@@ -35,13 +35,13 @@ export default class MissileManager {
         }
     }
 
-    draw(canvas) {
+    draw() {
         if(!this.#missiles) {
             return;
         }
 
         this.#missiles.forEach((missile) => {
-           missile.draw(canvas);
+           missile.draw();
         });
     }
 

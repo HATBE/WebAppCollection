@@ -1,19 +1,19 @@
 import Entity from '../Entity.js';
 
 export default class Player extends Entity {
-    constructor(game, x, y, width, height, speed) {
-        super(game, 'ufo.png', x, y, width, height, speed);
+    constructor(game, x, y, width, height, speed, health) {
+        super(game, 'ufo.png', x, y, width, height, speed, health);
     }
 
     tick() {
         
     }
 
-    draw(canvas) {
-        this._drawSelf(canvas);
+    draw() {
+        this._drawSelf();
                 
         if(this._game.isDebugMode()) {
-            this.drawDebug(canvas);
+            this.drawDebug();
         }
     }
 
@@ -42,11 +42,8 @@ export default class Player extends Entity {
         }
     }
 
-    drawDebug(canvas) {
-        super.drawDebug(canvas);
-        canvas.getContext().lineWidth = 1;
-        canvas.getContext().beginPath(); 
-        canvas.getContext().moveTo(this.getLocation().getX() + (this.getWidth() / 2), this.getLocation().getY()); 
-        canvas.getContext().lineTo(this.getLocation().getX() + (this.getWidth() / 2), 0); canvas.getContext().stroke();
+    drawDebug() {
+        super.drawDebug();
+        this._game.getDrawManager().drawLine(this.getLocation().getX() + (this.getWidth() / 2), this.getLocation().getY(), this.getLocation().getX() + (this.getWidth() / 2), 0);
     }
 }

@@ -69,10 +69,10 @@ export default class Game {
         this.getGameStateManager().getCurrentGameState().tick(); 
     }
 
-    #draw(canvas) {
-        this.getDrawManager().clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+    #draw() {
+        this.getDrawManager().clearRect(0, 0, this.getCanvas().getWidth(), this.getCanvas().getHeight());
 
-        this.getGameStateManager().getCurrentGameState().draw(canvas); 
+        this.getGameStateManager().getCurrentGameState().draw(); 
     }
 
     isDebugMode() {

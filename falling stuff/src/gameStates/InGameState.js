@@ -21,7 +21,7 @@ export default class InGameState extends GameState {
         this._loadAssets();
 
         this.#backgroundImage = new Sprite("space.jpg", this._game.getCanvas().getWidth(), this._game.getCanvas().getHeight());
-        this.#player = new Player(this._game, 0, 0, 70, 50, 5);
+        this.#player = new Player(this._game, 0, 0, 70, 50, 5, 5);
 
         this.#missileManager = new MissileManager(this._game);
         this.#asteroidManager = new AsteroidManager(this._game);
@@ -51,13 +51,13 @@ export default class InGameState extends GameState {
         this.#asteroidManager.tick();
     }
 
-    draw(canvas) {
-        this.#drawBackground(canvas);
-        this.#missileManager.draw(canvas);
-        this.#player.draw(canvas);
-        this.#asteroidManager.draw(canvas);
+    draw() {
+        this.#drawBackground();
+        this.#missileManager.draw();
+        this.#player.draw();
+        this.#asteroidManager.draw();
 
-        this.#drawUi(canvas);
+        this.#drawUi();
     }
 
     #setupPlayer() {
@@ -65,8 +65,8 @@ export default class InGameState extends GameState {
         this.#player.getLocation().setY(this._game.getCanvas().getHeight() - this.#player.getHeight() - 15);  // -15 for floating effect
     }
 
-    #drawBackground(canvas) {
-        canvas.getContext().drawImage(this.#backgroundImage, 0, 0, canvas.getWidth(), canvas.getHeight());
+    #drawBackground() {
+        this._game.getDrawManager().drawSprite(this.#backgroundImage, 0, 0, this._game.getCanvas().getWidth(), this._game.getCanvas().getHeight());
     }
 
     getMissileManager() {
@@ -101,19 +101,19 @@ export default class InGameState extends GameState {
         return this.#isGameOver;
     }
 
-    #drawUi(canvas) {
-        this._game.getDrawManager().drawText(`MC: ${(this.getMissileManager().getMissileDelayCounter() / 60).toFixed(1)}`, '#fff', 0, 16, 20, 'ARIAL');
+    #drawUi() {
+        this._game.getDrawManager().drawText(`P HEALTH: ${(this.#player.getHealth())}`, '#fff', 0, 16, 20, 'ARIAL');
         this._game.getDrawManager().drawText(`SCORE: ${this.getPoints()}`, '#fff', 0, 32, 20, 'ARIAL');
 
 
         if(this._game.isDebugMode()) {
-            this.#drawDebug(canvas);
+            this.#drawDebug();
         }
     }
 
-    #drawDebug(canvas) {
+    #drawDebug() {
         const fpsText = `FPS: ${this._game.getCurrentFps()}`;
-        this._game.getDrawManager().drawText(fpsText, '#ff0000', canvas.getWidth() - this._game.getDrawManager().measureText(fpsText).width, 16, 20, 'ARIAL');
+        this._game.getDrawManager().drawText(fpsText, '#ff0000', this._game.getCanvas().getWidth() - this._game.getDrawManager().measureText(fpsText).width, 16, 20, 'ARIAL');
     }
 
     _tickKeyboard() {

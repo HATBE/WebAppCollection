@@ -17,7 +17,7 @@ export default class GameOverState extends GameState {
         this._tickKeyboard();
     }
 
-    draw(canvas) {
+    draw() {
         this._game.getDrawManager().drawText('Game Over', '#ff0000', -1, -1, 72, 'ARIAL');
     }
 

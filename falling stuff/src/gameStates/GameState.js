@@ -12,7 +12,7 @@ export default class GameState {
     _loadAssets() {throw new Error("Method '_loadAssets()' must be implemented.");}
 
     tick() {throw new Error("Method 'tick()' must be implemented.");}
-    draw(canvas) {throw new Error("Method 'draw()' must be implemented.");}
+    draw() {throw new Error("Method 'draw()' must be implemented.");}
 
     _tickKeyboard() {throw new Error("Method '_tickKeyboard()' must be implemented.");}
     mouseClick(event) {throw new Error("Method 'mouseClick()' must be implemented.");}

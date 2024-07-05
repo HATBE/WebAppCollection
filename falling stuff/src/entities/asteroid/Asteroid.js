@@ -1,8 +1,8 @@
 import Entity from '../Entity.js';
 
 export default class Asteroid extends Entity {
-    constructor(game, x, y, width, height, speed) {
-        super(game, 'asteroid.png', x, y, width, height, speed);
+    constructor(game, x, y, width, height, speed, health) {
+        super(game, 'asteroid.png', x, y, width, height, speed, health);
     }
 
     tick() {
@@ -13,11 +13,11 @@ export default class Asteroid extends Entity {
         }
     }
 
-    draw(canvas) {
-        this._drawSelf(canvas);
+    draw() {
+        this._drawSelf();
 
         if(this._game.isDebugMode()) {
-            this.drawDebug(canvas);
+            this.drawDebug();
         }
     }
 }
