@@ -1,3 +1,4 @@
+import Player from "../entities/Player.js";
 import Canvas2D from "../rendering/Canvas2D.js";
 
 export default class Game {
@@ -5,9 +6,9 @@ export default class Game {
   private canvas: Canvas2D;
 
   private targetFPS: number = 60;
-  private frameDelay: number;
-  private oldTimeStamp: number;
-  private currentFPS: number;
+  private frameDelay: number = 0;
+  private oldTimeStamp: number = 0;
+  private currentFPS: number = 0;
 
   constructor() {
     this.canvas = new Canvas2D(480, 640);
@@ -47,8 +48,6 @@ export default class Game {
 
   private draw() {
     this.canvas.clear();
-    this.canvas.getContext().fillStyle = "brown";
-    this.canvas.getContext().fillRect(0, 0, 100, 100);
   }
 
   public isDebug(): boolean {
