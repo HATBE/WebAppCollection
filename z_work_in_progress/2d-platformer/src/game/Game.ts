@@ -11,7 +11,7 @@ export default class Game {
   private currentFPS: number = 0;
 
   constructor() {
-    this.canvas = new Canvas2D(480, 640);
+    this.canvas = new Canvas2D(1280, 720);
 
     this.initGameLoop();
 
@@ -35,7 +35,6 @@ export default class Game {
       this.currentFPS = Math.round(1000 / elapsed);
 
       this.tick();
-
       this.draw();
     }
 
