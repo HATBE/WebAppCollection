@@ -2,7 +2,7 @@ export default class Canvas2D {
   private canvas: HTMLCanvasElement;
   private context: CanvasRenderingContext2D;
 
-  constructor(height: number, width: number) {
+  constructor(width: number, height: number) {
     this.canvas = document.getElementById("game-canvas") as HTMLCanvasElement;
 
     if (!this.canvas) {

@@ -2,7 +2,7 @@ import GameStateManager from "./GameStateManager.js";
 import { GameStates } from "./GameStates.js";
 import IGameState from "./IGameState.js";
 
-export default class MenuState implements IGameState {
+export default class MenuState extends IGameState {
   public start(): void {
     // TODO: JUST TEMP for dev
     GameStateManager.getInstance().setGameState(GameStates.IN_GAME);
