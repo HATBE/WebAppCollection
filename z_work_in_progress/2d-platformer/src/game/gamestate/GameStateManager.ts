@@ -25,12 +25,8 @@ export default class GameStateManager {
       this.currentGameState.stop();
     }
 
-    console.log("1", this.currentGameState);
-
     this.currentGameState = GameStateFactory.getInstance().create(gameState);
-    console.log("2", this.currentGameState);
 
     this.currentGameState.start();
-    console.log("3", this.currentGameState);
   }
 }
