@@ -1,3 +1,3 @@
-import Entity from "./AbstractEntity";
+import AbstractEntity from "./AbstractEntity";
 
-export default class Player extends Entity {}
+export default class Player extends AbstractEntity {}

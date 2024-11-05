@@ -1,5 +1,6 @@
-import Player from "../entities/Player.js";
 import Canvas2D from "../rendering/Canvas2D.js";
+import GameStateManager from "./gamestate/GameStateManager.js";
+import { GameStates } from "./gamestate/GameStates.js";
 
 export default class Game {
   private debugMode: boolean = false;
@@ -21,9 +22,13 @@ export default class Game {
   }
 
   private initGameLoop() {
+    // set initial state to MENU
+    GameStateManager.getInstance().setGameState(GameStates.MENU);
+
     this.frameDelay = 1000 / this.targetFPS;
     this.oldTimeStamp = 0;
     this.currentFPS = 0;
+    console.log("init");
   }
 
   private gameLoop(timeStamp: number) {
@@ -43,10 +48,13 @@ export default class Game {
     });
   }
 
-  private tick() {}
+  private tick() {
+    GameStateManager.getInstance().getCurrentGameState()?.tick();
+  }
 
   private draw() {
     this.canvas.clear();
+    GameStateManager.getInstance().getCurrentGameState()?.draw();
   }
 
   public isDebug(): boolean {

@@ -1,6 +1,6 @@
 import Location from "../world/Location.js";
 
-export default abstract class Entity {
+export default abstract class AbstractEntity {
   private location: Location;
   private width: number;
   private height: number;
