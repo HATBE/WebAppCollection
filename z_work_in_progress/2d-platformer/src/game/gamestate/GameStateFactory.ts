@@ -9,10 +9,10 @@ export default class GameStateFactory {
   private constructor() {}
 
   public static getInstance(): GameStateFactory {
-    if (!this.instance) {
-      this.instance = new GameStateFactory();
+    if (!GameStateFactory.instance) {
+      GameStateFactory.instance = new GameStateFactory();
     }
-    return this.instance;
+    return GameStateFactory.instance;
   }
 
   public create(type: GameStates): IGameState {

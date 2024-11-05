@@ -10,10 +10,10 @@ export default class GameStateManager {
   private constructor() {}
 
   public static getInstance(): GameStateManager {
-    if (!this.instance) {
-      this.instance = new GameStateManager();
+    if (!GameStateManager.instance) {
+      GameStateManager.instance = new GameStateManager();
     }
-    return this.instance;
+    return GameStateManager.instance;
   }
 
   public getCurrentGameState(): IGameState | null {

@@ -1,19 +1,28 @@
+import Player from "../../entities/Player.js";
+import DrawManager from "../../rendering/DrawManager.js";
 import IGameState from "./IGameState.js";
 
 export default class InGameState implements IGameState {
+  private player: Player;
+
   public start(): void {
-    console.log("start");
+    this.player = new Player();
   }
 
-  public stop(): void {
-    console.log("stop");
-  }
+  public stop(): void {}
 
   public tick(): void {
-    console.log("tick");
+    this.player
+      .getLocation()
+      .setX(this.player.getLocation().getX() + this.player.getSpeed());
   }
 
   public draw(): void {
-    console.log("draw");
+    DrawManager.getInstance().drawSquare(
+      this.player.getLocation().getX(),
+      this.player.getLocation().getY(),
+      this.player.getWidth(),
+      this.player.getHeight()
+    );
   }
 }

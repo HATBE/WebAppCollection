@@ -1,4 +1,5 @@
 import Canvas2D from "../rendering/Canvas2D.js";
+import DrawManager from "../rendering/DrawManager.js";
 import GameStateManager from "./gamestate/GameStateManager.js";
 import { GameStates } from "./gamestate/GameStates.js";
 
@@ -13,6 +14,7 @@ export default class Game {
 
   constructor() {
     this.canvas = new Canvas2D(1280, 720);
+    DrawManager.configure(this.canvas);
 
     this.initGameLoop();
 
@@ -53,7 +55,7 @@ export default class Game {
   }
 
   private draw() {
-    this.canvas.clear();
+    DrawManager.getInstance().clear();
     GameStateManager.getInstance().getCurrentGameState()?.draw();
   }
 
