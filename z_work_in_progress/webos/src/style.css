@@ -1,0 +1,12 @@
+body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+canvas#app {
+    display: block;
+    width: 100vw;
+    height: 100vh;
+    background-color: black;
+}
