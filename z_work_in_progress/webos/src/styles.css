@@ -1,0 +1,15 @@
+* {
+    box-sizing: border-box;
+    user-select: none;
+}
+
+body {
+    background-color: black;
+    width: 100dvw;
+    height: 100dvh;
+    margin: 0;
+    padding: 0;
+    color: lightgreen;
+    font-family: Consolas, Monaco, 'Lucida Console', monospace;
+    overflow: hidden;
+}

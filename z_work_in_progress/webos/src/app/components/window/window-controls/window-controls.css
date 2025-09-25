@@ -1,0 +1,32 @@
+.controls {
+    border-bottom: 1px solid lightgreen;
+    display: flex;
+    justify-content: start;
+    flex-direction: row;
+}
+
+.controls .title {
+    display: flex;
+    margin-left: 4px;
+    align-items: center;
+}
+
+
+.controls .buttons  {
+    display: flex;
+}
+
+.controls .buttons  button {
+    border: 1px lightgreen solid;
+    background-color: transparent;
+    color: lightgreen;
+    height: 25px;
+    width: 25px;
+    display: block;
+}
+
+.controls .buttons button:hover {
+    background-color: lightgreen;
+    color: black;
+    cursor: pointer;
+} 

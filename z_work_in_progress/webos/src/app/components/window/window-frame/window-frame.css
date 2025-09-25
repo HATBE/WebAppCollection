@@ -1,0 +1,11 @@
+.window {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    border: 1px solid lightgreen;
+    width: 500px;
+    height: 400px;
+    position: absolute;
+    background-color: black;
+}
+

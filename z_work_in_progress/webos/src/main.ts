@@ -1,10 +1,6 @@
-import App from './App';
+import { bootstrapApplication } from '@angular/platform-browser';
+import { appConfig } from './app/app.config';
+import { App } from './app/app';
 
-const canvas: HTMLCanvasElement = document.getElementById('app') as HTMLCanvasElement;
-
-if (canvas) {
-  const app: App = new App(canvas);
-  app.start();
-} else {
-  alert('NO CANVAS');
-}
+bootstrapApplication(App, appConfig)
+  .catch((err) => console.error(err));

@@ -1,0 +1,9 @@
+<main>
+  <div class="main-content window-area">
+    <app-desktop-frame></app-desktop-frame>
+      @for(window of windows; track window.id) {
+        <app-window-frame [title]="window.title"></app-window-frame>
+      }
+  </div>
+  <app-taskbar-bar></app-taskbar-bar>
+</main>

@@ -1,0 +1,16 @@
+main {
+    width: 100dvw;
+    height: 100dvh;
+    background-color: black;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.main-content {
+    flex: 1;
+}
+
+.window-area {
+    position: relative;
+}
