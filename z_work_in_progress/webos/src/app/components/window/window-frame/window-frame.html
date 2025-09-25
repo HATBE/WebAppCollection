@@ -1,4 +1,13 @@
-<div class="window" appZIndexOnWindowDrag cdkDrag cdkDragBoundary=".window-area">
-    <app-window-controls [title]="title" cdkDragHandle></app-window-controls>
-    <app-window-content></app-window-content>
+<div 
+    class="window" 
+    [class.active]="window.isActive"
+    cdkDrag 
+    appZIndexOnWindowDrag
+    cdkDragBoundary=".window-area"
+    [cdkDragFreeDragPosition]="position"
+    [attr.data-id]="window.id"
+    (click)="click()"
+>
+    <app-window-controls [window]="window" cdkDragHandle></app-window-controls>
+    <app-window-content [window]="window"></app-window-content>
 </div>
