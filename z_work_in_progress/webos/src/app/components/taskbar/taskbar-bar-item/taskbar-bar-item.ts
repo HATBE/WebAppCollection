@@ -12,4 +12,8 @@ export class TaskbarBarItem {
   @Input() window!: Window;
 
   public constructor(private windowService: WindowService) {}
+
+  public focus() {
+    this.windowService.focus(this.window.id);
+  }
 }
