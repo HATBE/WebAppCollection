@@ -1,3 +1,6 @@
 <nav>
-    <app-taskbar-bar-item></app-taskbar-bar-item>
+    <app-taskbar-item-start></app-taskbar-item-start>
+    @for(window of getWindows(); track window.id) {
+        <app-taskbar-bar-item [window]="window"></app-taskbar-bar-item>
+    }
 </nav>

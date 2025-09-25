@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { WindowService } from '../../../services/Window.service';
+import { Window } from '../../models/Window.model';
 
 @Component({
   selector: 'app-taskbar-bar-item',
@@ -8,9 +9,7 @@ import { WindowService } from '../../../services/Window.service';
   styleUrl: './taskbar-bar-item.css'
 })
 export class TaskbarBarItem {
-  public constructor(private windowService: WindowService) {}
+  @Input() window!: Window;
 
-  protected test() {
-    this.windowService.create("Test Window", 100, 100, 400, 300);
-  }
+  public constructor(private windowService: WindowService) {}
 }

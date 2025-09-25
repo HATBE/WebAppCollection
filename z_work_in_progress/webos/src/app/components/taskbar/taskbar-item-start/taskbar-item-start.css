@@ -1,0 +1,15 @@
+.taskbar-icon {
+    width: 80px;
+    font-size: 16px;
+    height: 30px;
+    border: 1px solid lightgreen;
+    display: flex;
+    justify-content: center;
+    align-items: center;   
+}
+.taskbar-icon:hover {
+    background-color: lightgreen;
+    color: black;
+    cursor: pointer;
+    transition-duration: .2s;
+}
