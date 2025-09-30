@@ -1,10 +1,11 @@
 import { Component, Input } from '@angular/core';
 import { WindowService } from '../../../services/Window.service';
 import { Window } from '../../models/Window.model';
+import { TestApplications } from '../../applications/test-applications/test-applications';
 
 @Component({
   selector: 'app-window-content',
-  imports: [],
+  imports: [TestApplications],
   templateUrl: './window-content.html',
   styleUrl: './window-content.css'
 })
